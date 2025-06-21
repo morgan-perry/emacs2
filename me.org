@@ -375,11 +375,17 @@ the highest priority.
 
 **** Bindings
 
-Each section should contain it's own section based on the keybindings,
-sometimes I don't care because its more efficient, but the outline
-should be roughly followed.
+***** Non-Leader bindings
 
-***** Leader Setup
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Non-leader bindings
+(general-def '(normal visual)
+  "C-u" #'evil-scroll-up
+  "C-s" #'consult-line
+  "C-M-s" #'consult-line-multi)
+#+end_src
+
+***** Leader Bindings
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 
@@ -400,68 +406,47 @@ should be roughly followed.
 ;; Define the general keybindings
 (cloutlu-leader-def
   "SPC"   '("M-x" . execute-extended-command)
+  ;; Misc
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-#+end_src
-
-***** Files
-
-#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
-;; Files
-"f"     (cons "files" (make-sparse-keymap))
-"f f"   'find-file
-"f d"   'dired
-"/"     'consult-ripgrep
-"f F"   'consult-fd
-#+end_src
-
-***** Help
-#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
-;; Help
-"h"       (cons "help" (make-sparse-keymap))
-"h v"     'describe-variable
-"h f"     'describe-function
-"h k"     'describe-key
-"h P"     'describe-package
-"h m"     'describe-mode
-"h K"     'describe-keymap
-"h x"     'describe-command
-#+end_src
-
-***** Windows
-
-#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
-;; Windows
-"w"       (cons "windows" (make-sparse-keymap))
-"w TAB"   'alternate-window
-"w b"     'switch-to-minibuffer-window
-"w d"     'delete-window
-"w o"     'delete-other-windows
-"w h"     'evil-window-left
-"w j"     'evil-window-down
-"w k"     'evil-window-up
-"w l"     'evil-window-right
-"w v"     'split-window-horizontally
-"w s"     'split-window-vertically
-#+end_src
-
-***** Buffers/Bookmarks
-
-#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
-;; Buffers/Bookmarks
-"b"   (cons "buffers/bookmarks" (make-sparse-keymap))
-"`"   'previous-buffer 
-"b b" 'consult-buffer
-"b B" 'consult-bookmark
-"b r" 'revert-buffer
-#+end_src
-
-***** Search
-
-#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
-;; Search
-"s"   (cons "search" (make-sparse-keymap))
-"s s" 'consult-line)
+  "g g"   'magit
+  ;; Files
+  "f"     (cons "files" (make-sparse-keymap))
+  "f f"   'find-file
+  "f d"   'dired
+  "/"     'consult-ripgrep
+  "f F"   'consult-fd
+  "o -"   'dired-jump
+  ;; Help
+  "h"       (cons "help" (make-sparse-keymap))
+  "h v"     'describe-variable
+  "h f"     'describe-function
+  "h k"     'describe-key
+  "h P"     'describe-package
+  "h m"     'describe-mode
+  "h K"     'describe-keymap
+  "h x"     'describe-command
+  ;; Windows
+  "w"       (cons "windows" (make-sparse-keymap))
+  "w TAB"   'alternate-window
+  "w b"     'switch-to-minibuffer-window
+  "w d"     'delete-window
+  "w o"     'delete-other-windows
+  "w h"     'evil-window-left
+  "w j"     'evil-window-down
+  "w k"     'evil-window-up
+  "w l"     'evil-window-right
+  "w v"     'split-window-horizontally
+  "w s"     'split-window-vertically
+  ;; Buffers/Bookmarks
+  "b"   (cons "buffers/bookmarks" (make-sparse-keymap))
+  "`"   'previous-buffer 
+  "b b" 'consult-buffer
+  "b B" 'consult-bookmark
+  "b r" 'revert-buffer
+  ;; Search
+  "s"   (cons "search" (make-sparse-keymap))
+  "s s" 'consult-line)
 #+end_src
 
 *** Evil and evil-collection 
