@@ -1,0 +1,4 @@
+;;; Essential configuration
+(load-theme #'doric-fire t t)
+;(provide 'prot-emacs-essentials)
+(provide 'cloutlu-essentials)

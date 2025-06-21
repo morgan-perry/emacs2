@@ -1,0 +1,1598 @@
+#+startup: content indent
+* Early Init
+** Basic frame settings.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+(setq frame-resize-pixelwise t
+      frame-inhibit-implied-resize 'force
+      frame-title-format '("%b")
+      ring-bell-function 'ignore
+      use-dialog-box t ; only for mouse events, which I seldom use
+      use-file-dialog nil
+      use-short-answers t
+      inhibit-splash-screen t
+      inhibit-startup-screen t
+      inhibit-x-resources t
+      inhibit-startup-echo-area-message user-login-name ; read the docstring
+      inhibit-startup-buffer-menu t)
+#+end_src
+
+** Code to set frame parameters for like menu bar tool bar and scroll bar.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+(dolist (variable '(initial-frame-alist default-frame-alist))
+  (set variable `((width . (text-pixels . 800))
+                  (height . (text-pixels . 900))
+                  (horizontal-scroll-bars . nil)
+                  (menu-bar-lines . 0) ; alternative to disabling `menu-bar-mode'
+                  (tool-bar-lines . 0) ; alternative to disabling `tool-bar-mode'
+                  ,@(if x-toolkit-scroll-bars
+                        (list
+                         '(vertical-scroll-bars . nil)
+                         '(scroll-bar-width . 12))
+                      (list
+                       '(vertical-scroll-bars . right)
+                       '(scroll-bar-width . 6))))))
+
+(defun prot-emacs-no-minibuffer-scroll-bar (frame)
+  "Remove the minibuffer scroll bars from FRAME."
+  (when scroll-bar-mode
+    (set-window-scroll-bars (minibuffer-window frame) nil nil nil nil :persistent)))
+
+(add-hook 'after-make-frame-functions #'prot-emacs-no-minibuffer-scroll-bar)
+#+end_src
+
+** Startup time and garbage collection
+#+begin_src emacs-lisp :tangle "early-init.el"
+;; Temporarily increase the garbage collection threshold.  These
+;; changes help shave off about half a second of startup time.  The
+;; `most-positive-fixnum' is DANGEROUS AS A PERMANENT VALUE.  See the
+;; `emacs-startup-hook' a few lines below for what I actually use.
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.5)
+
+;; Same idea as above for the `file-name-handler-alist' and the
+;; `vc-handled-backends' with regard to startup speed optimisation.
+;; Here I am storing the default value with the intent of restoring it
+;; via the `emacs-startup-hook'.
+(defvar prot-emacs--file-name-handler-alist file-name-handler-alist)
+(defvar prot-emacs--vc-handled-backends vc-handled-backends)
+
+(setq file-name-handler-alist nil
+      vc-handled-backends nil)
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 100 100 8)
+                  gc-cons-percentage 0.1
+                  file-name-handler-alist prot-emacs--file-name-handler-alist
+                  vc-handled-backends prot-emacs--vc-handled-backends)))
+#+end_src
+
+* Init
+** Straight setup
+This setups up straight
+#+begin_src emacs-lisp :tangle "init.el"
+;; Setup straight package manager
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(setq package-enable-at-startup nil)
+(straight-use-package 'use-package)
+#+end_src
+
+** Evil want keybinding at the beninging
+
+I'm not sure why it won't work with the =:init= macro in the evil =use-package=. 
+
+#+begin_src emacs-lisp :tangle "init.el"
+(defvar evil-want-keybinding nil
+  "Set to nil because evil-collection is used for keybindings.")
+#+end_src
+
+** TODO idk yet
+
+#+begin_src emacs-lisp :tangle "init.el"
+(global-visual-line-mode t)
+(use-package multiple-cursors
+  :straight t)
+
+(use-package spacious-padding
+  :straight t
+  ;; Use the :custom keyword to set variables defined by the package.
+  :custom
+  ;; The value is a plist. We only need to specify the keys we want to change.
+  (spacious-padding-widths
+   '(
+     :internal-border-width 40      ; Make the main side margins much larger
+     :right-divider-width 1         ; Make window dividers invisible
+     :fringe-width 15               ; Add a bit more space for fringe indicators
+     :header-line-width 0           ; Remove header line padding
+     :mode-line-width 4)))          ; Slightly smaller mode-line padding
+
+(use-package doom-modeline
+  :straight t
+  :config
+  (doom-modeline-mode))
+#+end_src
+
+** Modules and custom libraries
+#+begin_src emacs-lisp :tangle "init.el"
+;; This adds all elisp files from the modules and lisp folder
+(mapc
+ (lambda (string)
+   (add-to-list 'load-path (locate-user-emacs-file string)))
+ '("modules" "cloutlu-lisp"))
+#+end_src
+
+** Load the individual modules
+
+For everything that is found in [[id:d4dbd0e3-3123-482f-a6ce-6e9db93937b9][Lisp]]
+
+#+begin_src emacs-lisp :tangle "init.el"
+;;  This loads the extra lisp I provide for some extra functionality
+(require 'cloutlu-narrow)
+(require 'cloutlu-org-extra)
+(require 'cloutlu-core-helpers)
+#+end_src
+
+This loads the individual modules from the =modules= folder.
+#+begin_src emacs-lisp :tangle "init.el"
+(require 'cloutlu-bind) ;; This must go first as other package rely on general for binding
+(require 'cloutlu-vertico)
+(require 'cloutlu-which-key)
+(require 'cloutlu-essentials)
+(require 'cloutlu-dired)
+(require 'cloutlu-org)
+(require 'cloutlu-zen)
+#+end_src
+
+** Tweaks
+*** Native Compilation Silent
+
+#+begin_src emacs-lisp :tangle "init.el"
+;; Make native compilation silent and prune its cache.
+(when (native-comp-available-p)
+  (setq native-comp-async-report-warnings-errors 'silent) ; Emacs 28 with native compilation
+  (setq native-compile-prune-cache t)) ; Emacs 29
+#+end_src
+
+** Send custom-file to oblivion
+#+begin_src emacs-lisp :tangle "init.el"
+;; Disable the damn thing by making it disposable.
+(setq custom-file (make-temp-file "emacs-custom-"))
+#+end_src
+
+*** Start with scratch buffer
+
+#+begin_src emacs-lisp :tangle "init.el"
+(setq initial-buffer-choice t)
+(setq initial-major-mode 'lisp-interaction-mode)
+(setq initial-scratch-message
+      (format ";; This is `%s'.  Use `%s' to evaluate and print results.\n\n"
+              'lisp-interaction-mode
+              (propertize
+               (substitute-command-keys "\\<lisp-interaction-mode-map>\\[eval-print-last-sexp]")
+               'face 'help-key-binding)))
+#+end_src
+
+** tempel
+
+A basic templating system, this shouldn't replace yasnippet but I have
+no need to even use that thing in the first place, this is more than enough.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package tempel
+  :straight t
+  :custom
+  (tempel-path (concat user-emacs-directory "tempels"))
+  :init
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+  :general
+  ("M-*" #'tempel-insert)
+  (:states '(normal insert emacs)
+	   "M-+" #'tempel-complete))
+#+end_src
+
+*** Tempels
+**** org-mode
+#+begin_src lisp-data :tangle "tempels"
+org-mode
+
+(caption "#+caption: ")
+(drawer ":" p ":" n r ":end:")
+(begin "#+begin_" (s name) n> r> n "#+end_" name)
+(quote "#+begin_quote" n> r> n "#+end_quote")
+(sidenote "#+begin_sidenote" n> r> n "#+end_sidenote")
+(marginnote "#+begin_marginnote" n> r> n "#+end_marginnote")
+(example "#+begin_example" n> r> n "#+end_example")
+(center "#+begin_center" n> r> n "#+end_center")
+(ascii "#+begin_export ascii" n> r> n "#+end_export")
+(html "#+begin_export html" n> r> n "#+end_export")
+(latex "#+begin_export latex" n> r> n "#+end_export")
+(comment "#+begin_comment" n> r> n "#+end_comment")
+(verse "#+begin_verse" n> r> n "#+end_verse")
+(src "#+begin_src " q n r n "#+end_src")
+(<s "#+begin_src " r n "#+end_src")
+(gnuplot "#+begin_src gnuplot :var data=" (p "table") " :file " (p "plot.png") n r n "#+end_src" :post (org-edit-src-code))
+(elisp "#+begin_src emacs-lisp" n r n "#+end_src" :post (org-edit-src-code))
+(dafny "src_dafny{" r "}")
+(inlsrc "src_" p "{" q "}")
+(title "#+title: " p n "#+author: Morgan Perry" n "#+language: en")
+(quilt "#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>"
+       n "#+attr_html: :class quiltish"
+       n "#+caption: " p
+       n "#+begin_figure"
+       n r
+       n "#+end_figure")
+#+end_src
+
+**** Set tempels file metadata
+
+#+begin_src lisp-data :tangle "tempels"
+;; Local Variables:
+;; mode: lisp-data
+;; outline-regexp: "[a-z]"
+;; End:
+#+end_src
+** Corfu
+
+This is the completion popup along with capf functionality provided from cape.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package corfu
+  :straight t
+  ;; Optional customizations
+  :config
+  (setq corfu-auto t
+        corfu-auto-delay 0.24
+        corfu-auto-prefix 2
+        global-corfu-modes
+        '((not erc-mode
+               circe-mode
+               help-mode
+               gud-mode
+               vterm-mode)
+          t)
+        corfu-cycle t
+        corfu-preselect 'prompt
+        corfu-count 16
+        corfu-max-width 120
+        corfu-on-exact-match nil
+        ;; corfu-quit-at-boundary (if (or (modulep! :completion vertico)
+        ;;                                (modulep! +orderless))
+        ;;                            'separator t)
+        corfu-quit-no-match corfu-quit-at-boundary
+        tab-always-indent 'complete
+
+	text-mode-ispell-word-completion nil
+
+	read-extended-command-predicate #'command-completion-default-include-p)
+  :init
+  (global-corfu-mode)
+  ;; Enable optional extension modes:
+  (corfu-history-mode)
+  (corfu-popupinfo-mode))
+
+(use-package cape
+  :straight t
+  :init
+  (add-hook! 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook! 'completion-at-point-functions #'cape-file)
+  (add-hook! 'completion-at-point-functions #'cape-elisp-block))
+#+end_src
+
+** Magit
+
+The best git client :)
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package magit
+  :straight t) 
+#+end_src
+
+** Git auto commit mode
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package git-auto-commit-mode
+  :straight t)
+#+end_src
+
+* Modules
+** Bindings
+This module sets up the global keybinding system using `general.el` and 'evil'
+It establishes `SPC` as the leader key and ensures its bindings have
+the highest priority.
+*** General.el
+:PROPERTIES:
+:ID:       0eb8cf18-5f97-4ee5-a403-dd5e4b0a1e53
+:END:
+
+**** Use-package
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+(use-package general
+  :straight t
+  :after (evil evil-collection which-key)
+  :demand t)
+#+end_src
+
+**** Bindings
+
+Each section should contain it's own section based on the keybindings,
+sometimes I don't care because its more efficient, but the outline
+should be roughly followed.
+
+***** Leader Setup
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+
+(general-define-key
+ :states '(normal motion)
+ :keymaps 'override
+ :prefix "SPC"
+ :prefix-map 'cloutlu-leader-map)
+
+;; Main leader definer
+(general-create-definer cloutlu-leader-def
+  :keymaps 'cloutlu-leader-map)
+#+end_src
+
+***** General
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Define the general keybindings
+(cloutlu-leader-def
+  "SPC"   '("M-x" . execute-extended-command)
+  "h t"   'consult-theme
+  "t z"   'cloutlu/toggle-zen-mode
+#+end_src
+
+***** Files
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Files
+"f"     (cons "files" (make-sparse-keymap))
+"f f"   'find-file
+"f d"   'dired
+"/"     'consult-ripgrep
+"f F"   'consult-fd
+#+end_src
+
+***** Help
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Help
+"h"       (cons "help" (make-sparse-keymap))
+"h v"     'describe-variable
+"h f"     'describe-function
+"h k"     'describe-key
+"h P"     'describe-package
+"h m"     'describe-mode
+"h K"     'describe-keymap
+"h x"     'describe-command
+#+end_src
+
+***** Windows
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Windows
+"w"       (cons "windows" (make-sparse-keymap))
+"w TAB"   'alternate-window
+"w b"     'switch-to-minibuffer-window
+"w d"     'delete-window
+"w o"     'delete-other-windows
+"w h"     'evil-window-left
+"w j"     'evil-window-down
+"w k"     'evil-window-up
+"w l"     'evil-window-right
+"w v"     'split-window-horizontally
+"w s"     'split-window-vertically
+#+end_src
+
+***** Buffers/Bookmarks
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Buffers/Bookmarks
+"b"   (cons "buffers/bookmarks" (make-sparse-keymap))
+"`"   'previous-buffer 
+"b b" 'consult-buffer
+"b B" 'consult-bookmark
+"b r" 'revert-buffer
+#+end_src
+
+***** Search
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;; Search
+"s"   (cons "search" (make-sparse-keymap))
+"s s" 'consult-line)
+#+end_src
+
+*** Evil and evil-collection 
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+(use-package evil
+  :straight t
+  :demand t
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-move-line-on-visual-line t)
+  :config
+  (evil-mode 1))
+
+(use-package evil-collection
+  :straight t
+  :after evil
+  :config
+  (evil-collection-init))
+#+end_src
+
+*** Provide the module
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+(provide 'cloutlu-bind)
+#+end_src
+
+** Essentials
+*** Load theme and fonts
+
+I don't currently have a good way to load/manage themes...
+Most of this is using prot's  packages.
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-essentials.el" :mkdirp yes
+;;; Essential configuration
+(use-package doric-themes
+  :straight t
+  :config
+  (setq doric-themes-mixed-fonts t)
+  (add-hook 'text-mode-hook #'variable-pitch-mode))
+
+(use-package ef-themes
+  :straight t
+  :config
+  (setq ef-themes-mixed-fonts t)
+  (add-hook 'text-mode-hook #'variable-pitch-mode))
+
+(load-theme 'doric-obsidian t)
+
+(use-package fontaine
+  :straight t
+  :general
+  ("C-c f" #'fontaine-set-preset)
+  :config
+  (setq fontaine-latest-state-file
+	(locate-user-emacs-file "fontaine-latest-state.eld"))
+
+  (setq fontaine-presets
+	'((small
+           :default-family "Aporetic Serif Mono"
+           :default-height 80
+           :variable-pitch-family "Aporetic Sans")
+          (regular) ; like this it uses all the fallback values and is named `regular'
+          (medium
+           :default-weight semilight
+           :default-height 115
+           :bold-weight extrabold)
+          (large
+           :inherit medium
+           :default-height 150)
+          (presentation
+           :default-height 180)
+          (t
+           ;; I keep all properties for didactic purposes, but most can be
+           ;; omitted.  See the fontaine manual for the technicalities:
+           ;; <https://protesilaos.com/emacs/fontaine>.
+           :default-family "Aporetic Sans Mono"
+           :default-weight regular
+           :default-height 100
+
+           :fixed-pitch-family nil ; falls back to :default-family
+           :fixed-pitch-weight nil ; falls back to :default-weight
+           :fixed-pitch-height 1.0
+
+           :fixed-pitch-serif-family nil ; falls back to :default-family
+           :fixed-pitch-serif-weight nil ; falls back to :default-weight
+           :fixed-pitch-serif-height 1.0
+
+           :variable-pitch-family "Aporetic Serif"
+           :variable-pitch-weight nil
+           :variable-pitch-height 1.0
+
+           :mode-line-active-family nil ; falls back to :default-family
+           :mode-line-active-weight nil ; falls back to :default-weight
+           :mode-line-active-height 0.9
+
+           :mode-line-inactive-family nil ; falls back to :default-family
+           :mode-line-inactive-weight nil ; falls back to :default-weight
+           :mode-line-inactive-height 0.9
+
+           :header-line-family nil ; falls back to :default-family
+           :header-line-weight nil ; falls back to :default-weight
+           :header-line-height 0.9
+
+           :line-number-family nil ; falls back to :default-family
+           :line-number-weight nil ; falls back to :default-weight
+           :line-number-height 0.9
+
+           :tab-bar-family nil ; falls back to :default-family
+           :tab-bar-weight nil ; falls back to :default-weight
+           :tab-bar-height 1.0
+
+           :tab-line-family nil ; falls back to :default-family
+           :tab-line-weight nil ; falls back to :default-weight
+           :tab-line-height 1.0
+
+           :bold-family nil ; use whatever the underlying face has
+           :bold-weight bold
+
+           :italic-family nil
+           :italic-slant italic
+
+           :line-spacing nil)))
+
+  ;; Set the last preset or fall back to desired style from `fontaine-presets'
+  ;; (the `regular' in this case).
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+  ;; Persist the latest font preset when closing/starting Emacs and
+  ;; while switching between themes.
+   (setq fontaine-latest-state-file
+	 (locate-user-emacs-file "fontaine-latest-state.eld"))
+
+   ;; Aporetic is my highly customised build of Iosevka:
+   ;; <https://github.com/protesilaos/aporetic>.
+   (setq fontaine-presets
+	 '((small
+            :default-family "Aporetic Serif Mono"
+            :default-height 80
+            :variable-pitch-family "Aporetic Sans")
+           (regular) ; like this it uses all the fallback values and is named `regular'
+           (medium
+            :default-weight semilight
+            :default-height 115
+            :bold-weight extrabold)
+           (large
+            :inherit medium
+            :default-height 150)
+           (presentation
+            :default-height 180)
+           (t
+            ;; I keep all properties for didactic purposes, but most can be
+            ;; omitted.  See the fontaine manual for the technicalities:
+            ;; <https://protesilaos.com/emacs/fontaine>.
+            :default-family "Aporetic Sans Mono"
+            :default-weight regular
+            :default-height 100
+
+            :fixed-pitch-family nil ; falls back to :default-family
+            :fixed-pitch-weight nil ; falls back to :default-weight
+            :fixed-pitch-height 1.0
+
+            :fixed-pitch-serif-family nil ; falls back to :default-family
+            :fixed-pitch-serif-weight nil ; falls back to :default-weight
+            :fixed-pitch-serif-height 1.0
+
+            :variable-pitch-family "Aporetic Serif"
+            :variable-pitch-weight nil
+            :variable-pitch-height 1.0
+
+            :mode-line-active-family nil ; falls back to :default-family
+            :mode-line-active-weight nil ; falls back to :default-weight
+            :mode-line-active-height 0.9
+
+            :mode-line-inactive-family nil ; falls back to :default-family
+            :mode-line-inactive-weight nil ; falls back to :default-weight
+            :mode-line-inactive-height 0.9
+
+            :header-line-family nil ; falls back to :default-family
+            :header-line-weight nil ; falls back to :default-weight
+            :header-line-height 0.9
+
+            :line-number-family nil ; falls back to :default-family
+            :line-number-weight nil ; falls back to :default-weight
+            :line-number-height 0.9
+
+            :tab-bar-family nil ; falls back to :default-family
+            :tab-bar-weight nil ; falls back to :default-weight
+            :tab-bar-height 1.0
+
+            :tab-line-family nil ; falls back to :default-family
+            :tab-line-weight nil ; falls back to :default-weight
+            :tab-line-height 1.0
+
+            :bold-family nil ; use whatever the underlying face has
+            :bold-weight bold
+
+            :italic-family nil
+            :italic-slant italic
+
+            :line-spacing nil)))
+
+   ;; Set the last preset or fall back to desired style from `fontaine-presets'
+   ;; (the `regular' in this case).
+   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+   ;; Persist the latest font preset when closing/starting Emacs and
+   ;; while switching between themes.
+   (fontaine-mode 1)
+  )
+#+end_src
+
+*** Provide Module
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-essentials.el" :mkdirp yes
+(provide 'cloutlu-essentials)
+#+end_src
+** Dired
+*** Settings for common operations
+
+I mean yeah dude I want to delete just the folder not anything inside it that makes sense!
+#+begin_src emacs-lisp :tangle "modules/cloutlu-dired.el" :mkdirp yes
+  ;;; Dired file manager and prot-dired.el extras (not actually lol)
+(use-package dired
+  :ensure nil
+  :commands (dired)
+  :config
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t))
+#+end_src
+
+*** Provide the module
+#+begin_src emacs-lisp :tangle "modules/cloutlu-dired.el" :mkdirp yes
+(provide 'cloutlu-dired)
+#+end_src
+
+** Org
+*** Basic org settings & bindings
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org
+  :ensure nil
+  :init
+  (setq org-directory (expand-file-name "~/doc/share/org")
+	org-archive-location (concat org-directory "/archive.org::")
+	org-imenu-depth 7
+	org-src-preserve-indentation t)
+  ;; Use :general to define high-precedence, buffer-local keys for Org mode.
+  ;; These keys do NOT use the SPC leader.
+  :general
+
+  ;; General <SPC s> heading
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "s i" #'consult-org-heading
+	    "o a" (cons "org archiving/attachments" (make-sparse-keymap))
+	    "o a A" #'org-archive-subtree-default
+	    "o a a" #'org-attach
+	    "o a d" #'org-attach-delete-one
+	    "o a D" #'org-attach-delete-all
+	    "o a n" #'org-attach-new
+	    "o a o" #'org-attach-open
+	    "o a O" #'org-attach-open-in-emacs
+	    "o a r" #'org-attach-reveal
+	    "o a R" #'org-attach-reveal-in-emacs
+	    "o a u" #'org-attach-url
+	    )
+
+  ;; A standard Org binding
+  (:states 'normal
+	   :keymaps 'org-mode-map
+	   [remap evil-open-folds]    #'cloutlu/org-hide-next-fold-level
+	   [remap evil-close-folds]    #'cloutlu/org-show-next-fold-level
+	   "z n" #'cloutlu/smart-narrow
+	   "z N" #'cloutlu/widen-indirectly-narrowed-buffer
+	   "z i" #'org-toggle-inline-images)
+
+  )
+#+end_src
+
+*** Org modern
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(straight-use-package '(org :type built-in))
+(use-package org-modern
+  :straight t
+  :config
+  (global-org-modern-mode))
+#+end_src
+
+*** Org Tidy
+
+This hides the properties drawer and some other metadata in org files that I don't interactic
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-tidy
+  :straight t
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "t t" #'org-tidy-toggle)
+  :hook
+  (org-mode . org-tidy-mode))
+#+end_src
+
+*** Org Roam
+
+My general note taking system. Regular org roam is just as nice but I like to pretend to be an academic.
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-roam
+  :straight t
+  :after org
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "n r"   (cons "org-roam" (make-sparse-keymap))
+	    "n r f" #'org-roam-node-find
+	    "n r i" #'org-roam-node-insert
+	    "n r n" #'org-roam-capture
+	    "n r r" #'org-roam-buffer-toggle
+	    "n r R" #'org-roam-buffer-display-dedicated
+	    "n r s" #'org-roam-db-sync)
+  :custom
+  (org-roam-directory (concat org-directory "/roam"))
+  :config
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  )
+#+end_src
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package nerd-icons
+  :straight t
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+
+(use-package citar
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "n b" #'citar-open-notes)
+  
+  :init
+  (setq org-cite-insert-processor 'citar
+        org-cite-follow-processor 'citar
+        org-cite-activate-processor 'citar)
+  :config
+  (setq citar-bibliography '("~/doc/share/org/ref.bib"))
+  (setq citar-library-paths '("~/doc/share/org/references/"))
+  (setq citar-notes-paths '("~/doc/share/org/roam"))
+  (defvar citar-indicator-files-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-faicon
+              "nf-fa-file_o"
+              :face 'nerd-icons-green
+              :v-adjust -0.1)
+     :function #'citar-has-files
+     :padding "  " ; need this because the default padding is too low for these icons
+     :tag "has:files"))
+  (defvar citar-indicator-links-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-faicon
+              "nf-fa-link"
+              :face 'nerd-icons-orange
+              :v-adjust 0.01)
+     :function #'citar-has-links
+     :padding "  "
+     :tag "has:links"))
+  (defvar citar-indicator-notes-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-codicon
+              "nf-cod-note"
+              :face 'nerd-icons-blue
+              :v-adjust -0.3)
+     :function #'citar-has-notes
+     :padding "    "
+     :tag "has:notes"))
+  (defvar citar-indicator-cited-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-faicon
+              "nf-fa-circle_o"
+              :face 'nerd-icon-green)
+     :function #'citar-is-cited
+     :padding "  "
+     :tag "is:cited"))
+  (setq citar-indicators
+        (list citar-indicator-files-icons
+              citar-indicator-links-icons
+              citar-indicator-notes-icons
+              citar-indicator-cited-icons)))
+
+(use-package citar-org-roam
+  :straight t
+  :init
+  (after! (citar org-roam)
+    (citar-org-roam-mode)))
+
+(after! oc
+  (setq org-cite-global-bibliography
+        (ensure-list
+         (or (bound-and-true-p citar-bibliography)
+             (bound-and-true-p bibtex-completion-bibliography)))
+        ;; Setup export processor; default csl/citeproc-el, with biblatex for
+        ;; latex
+        org-cite-export-processors '((latex biblatex) (t csl))
+        org-support-shift-select t)
+
+  (require 'oc-biblatex))
+
+;; oc-csl requires citeproc, which requires the top-level org, so loading oc-csl
+;; after oc interferes with incremental loading of Org
+(after! org (require 'oc-csl))
+#+end_src
+
+*** Org attachments
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+;; Autoload all these commands that org-attach doesn't autoload itself
+(use-package org-attach
+	      :commands (org-attach-delete-one
+			 org-attach-delete-all
+			 org-attach-new
+			 org-attach-open
+			 org-attach-open-in-emacs
+			 org-attach-reveal-in-emacs
+			 org-attach-url
+			 org-attach-set-directory
+			 org-attach-sync)
+	      :config
+	      ;; Centralized attachments directory by default
+	      (setq org-attach-id-dir (expand-file-name ".attach/" org-directory))
+
+	      (setq org-attach-store-link-p 'attached     ; store link after attaching files
+		    org-attach-use-inheritance t) ; inherit properties from parent nodes
+	      (after! projectile
+		(add-to-list 'projectile-globally-ignored-directories org-attach-id-dir)))
+
+;; Add inline image previews for attachment links
+(org-link-set-parameters "attachment" :image-data-fun #'+org-image-file-data-fn)
+#+end_src
+
+*** Provide the module
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(provide 'cloutlu-org)
+#+end_src
+** Vertico Setup
+
+These modules are generally for a (personally) more preferable
+compleition à la =ido-mode=. Most general functions found in
+[[id:0eb8cf18-5f97-4ee5-a403-dd5e4b0a1e53][general.el]] rely on consult, however most of those have similar emacs
+functions. Go to the respecting github page to find out the purpose
+for each.
+
+*** Vertico
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el"
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode))
+#+end_src
+
+*** Marginalia
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el" :mkdirp yes
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  :straight t
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
+#+end_src
+
+*** Orderless
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el" :mkdirp yes
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :straight t
+  :custom
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+*** Consult
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el" :mkdirp yes
+;; Example configuration for Consult
+(use-package consult
+  :demand t
+  :after vertico
+  :straight t
+  ;; Replace bindings. Lazily loaded by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line )
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Tweak the register preview for `consult-register-load',
+  ;; `consult-register-store' and the built-in commands.  This improves the
+  ;; register formatting, adds thin separator lines, register sorting and hides
+  ;; the window mode line.
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep consult-man
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+  )
+#+end_src
+
+*** Provide the Module
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el" :mkdirp yes
+(provide 'cloutlu-vertico)
+#+end_src
+
+** Which Key
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-which-key.el" :mkdirp yes
+(use-package which-key
+  :ensure nil ; built into Emacs 30
+  :hook (after-init . which-key-mode)
+  :config
+  (setq which-key-separator "  ")
+  (setq which-key-prefix-prefix "... ")
+  (setq which-key-max-display-columns 3)
+  (setq which-key-idle-delay 1.5)
+  (setq which-key-idle-secondary-delay 0.25)
+  (setq which-key-add-column-padding 1)
+  (setq which-key-max-description-length 40))
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-which-key.el" :mkdirp yes
+(provide 'cloutlu-which-key)
+#+end_src
+
+
+** Zen Mode
+This module provides a distraction-free "zen" or "focus" mode. It uses
+`spacious-padding` to increase margins, `fontaine` to switch to a
+larger font preset, and it replaces the complex modeline with a simple,
+minimalist one for a comfortable, centered writing environment.
+
+#+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-zen.el" :mkdirp yes
+;;; cloutlu-zen.el --- Distraction-free writing environment -*- lexical-binding: t; -*-
+
+;;;; Package Dependencies
+;; We declare the packages this module depends on directly within it.
+
+(use-package spacious-padding
+  :straight t
+  :custom
+  ;; These settings are chosen to mimic the default appearance of writeroom-mode.
+  (spacious-padding-widths
+   '(:internal-border-width 30  ; Creates wide side margins, like writeroom's border
+     :right-divider-width 1     ; Makes vertical window dividers nearly invisible
+     :fringe-width 10           ; A reasonable default for fringe indicators
+     :header-line-width 0       ; No extra padding on the header line
+     :mode-line-width 4         ; A tight, clean mode-line padding
+     :scroll-bar-width 0)))     ; Ensure no space is allocated for scroll bars
+
+(use-package fontaine :straight t)
+
+;;;; Variables
+
+(defvar cloutlu-zen-mode-active-p nil
+  "A boolean to track if Zen mode is currently active.")
+
+(defvar cloutlu-zen--original-font-preset nil
+  "Internal variable to store the font preset before activating Zen mode.")
+
+(defvar cloutlu-zen--original-mode-line-format nil
+  "Internal variable to store the modeline format before activating Zen mode.")
+
+(defvar cloutlu-zen-font-preset 'large
+  "The font preset to use when activating Zen mode.
+You can change this to 'presentation or any other preset you have defined.")
+
+(defvar cloutlu-zen-mode-line-format
+  '(:eval (propertize " %b %* " 'face 'mode-line))
+  "The minimalist modeline format to use in Zen mode.
+Set to nil to hide the modeline completely.")
+
+;;;; User-Facing Command
+
+(defun cloutlu/toggle-zen-mode ()
+  "Toggle a distraction-free 'zen' mode."
+  (interactive)
+  (if cloutlu-zen-mode-active-p
+      ;; --- DEACTIVATE ZEN MODE ---
+      (progn
+        (spacious-padding-mode -1)
+        ;; Restore the original font preset
+        (when cloutlu-zen--original-font-preset
+          (fontaine-set-preset cloutlu-zen--original-font-preset))
+        ;; Restore the original modeline format
+        (when cloutlu-zen--original-mode-line-format
+          (setq-local mode-line-format cloutlu-zen--original-mode-line-format))
+        (setq cloutlu-zen-mode-active-p nil)
+        (message "Zen mode disabled"))
+    ;; --- ACTIVATE ZEN MODE ---
+    (progn
+      ;; Store the current state before changing it
+      (setq cloutlu-zen--original-font-preset fontaine-current-preset)
+      (setq cloutlu-zen--original-mode-line-format mode-line-format)
+      ;; Activate the Zen mode features
+      (spacious-padding-mode 1)
+      (fontaine-set-preset cloutlu-zen-font-preset)
+      (setq-local mode-line-format cloutlu-zen-mode-line-format)
+      (setq cloutlu-zen-mode-active-p t)
+      (message "Zen mode enabled: using '%s' font preset" cloutlu-zen-font-preset))))
+
+;;;; Finalization
+
+(provide 'cloutlu-zen)
+;;; cloutlu-zen.el ends here
+#+end_src
+
+
+* Lisp
+:PROPERTIES:
+:ID:       d4dbd0e3-3123-482f-a6ce-6e9db93937b9
+:END:
+** Narrowing Library
+
+This library contains the core functions for indirectly narrowing and widening buffers,
+inspired by Doom Emacs. It also includes a smart wrapper function that can
+differentiate between Org mode and other modes.
+
+#+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-narrow.el" :mkdirp yes
+  ;;; cloutlu-narrow.el --- Indirect narrowing and widening functions -*- lexical-binding: t; -*-
+
+(defvar cloutlu--narrowed-base-buffer nil
+  "The original buffer that was indirectly narrowed.")
+
+(defun cloutlu/narrow-buffer-indirectly (beg end)
+  "Restrict editing in this buffer to the current region, indirectly.
+
+  This recursively creates indirect clones of the current buffer so that the
+  narrowing doesn't affect other windows displaying the same buffer. Call
+  `cloutlu/widen-indirectly-narrowed-buffer' to undo it (incrementally)."
+  (interactive (if (region-active-p)
+                   (list (region-beginning) (region-end))
+                 (list (line-beginning-position) (line-end-position))))
+  (deactivate-mark)
+  (let ((orig-buffer (current-buffer)))
+    (with-current-buffer (switch-to-buffer (clone-indirect-buffer nil nil))
+      (narrow-to-region beg end)
+      (setq-local cloutlu--narrowed-base-buffer orig-buffer))))
+
+(defun cloutlu/widen-indirectly-narrowed-buffer (&optional arg)
+  "Widens narrowed buffers.
+
+  This command will incrementally kill indirect buffers (under the assumption they
+  were created by `cloutlu/narrow-buffer-indirectly') and switch to their base
+  buffer.
+
+  If ARG, then kill all indirect buffers, return the base buffer and widen it.
+
+  If the current buffer is not an indirect buffer, it is `widen'ed."
+  (interactive "P")
+  (unless (buffer-narrowed-p)
+    (user-error "Buffer isn't narrowed"))
+  (let ((orig-buffer (current-buffer))
+        (base-buffer cloutlu--narrowed-base-buffer))
+    (cond ((or (not base-buffer)
+               (not (buffer-live-p base-buffer)))
+           (widen))
+          (arg
+           (let ((buffer orig-buffer)
+                 (buffers-to-kill (list orig-buffer)))
+             (while (setq buffer (buffer-local-value 'cloutlu--narrowed-base-buffer buffer))
+               (push buffer buffers-to-kill))
+             (switch-to-buffer (buffer-base-buffer))
+             (mapc #'kill-buffer (remove (current-buffer) buffers-to-kill))))
+          ((switch-to-buffer base-buffer)
+           (kill-buffer orig-buffer)))))
+
+(defun cloutlu/smart-narrow ()
+  "Narrow intelligently based on the current mode.
+  In Org mode, narrow to the current subtree.
+  Otherwise, use `cloutlu/narrow-buffer-indirectly` on the
+  current region or line."
+  (interactive)
+  (if (derived-mode-p 'org-mode)
+      (org-narrow-to-subtree)
+    (call-interactively #'cloutlu/narrow-buffer-indirectly)))
+
+(provide 'cloutlu-narrow)
+  ;;; cloutlu-narrow.el ends here
+#+end_src
+
+** Org Extra Helpers
+
+This library contains extra helper functions for Org mode, primarily for advanced
+folding controls, inspired by Doom Emacs.
+
+#+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-org-extra.el" :mkdirp yes
+;;; cloutlu-org-extra.el --- Extra helper functions for Org mode -*- lexical-binding: t; -*-
+
+(defun cloutlu/org--get-foldlevel ()
+  "Get the current maximum fold level in the visible window."
+  (let ((max 1))
+    (save-restriction
+      (narrow-to-region (window-start) (window-end))
+      (save-excursion
+        (goto-char (point-min))
+        (while (not (eobp))
+          (org-next-visible-heading 1)
+          (when (memq (get-char-property (line-end-position)
+                                         'invisible)
+                      '(outline org-fold-outline))
+            (let ((level (org-outline-level)))
+              (when (> level max)
+                (setq max level))))))
+      max)))
+
+(defun cloutlu/org-show-next-fold-level (&optional count)
+  "Decrease the fold-level of the visible area of the buffer.
+This unfolds another level of headings on each invocation.
+With COUNT, unfold that many levels."
+  (interactive "p")
+  (let ((new-level (+ (cloutlu/org--get-foldlevel) (or count 1))))
+    (outline-hide-sublevels new-level)
+    (message "Folded to level %s" new-level)))
+
+(defun cloutlu/org-hide-next-fold-level (&optional count)
+  "Increase the global fold-level of the visible area of the buffer.
+This folds another level of headings on each invocation.
+With COUNT, fold that many levels."
+  (interactive "p")
+  (let ((new-level (max 1 (- (cloutlu/org--get-foldlevel) (or count 1)))))
+    (outline-hide-sublevels new-level)
+    (message "Folded to level %s" new-level)))
+
+(defun cloutlu/org-open-all-folds (&optional level)
+  "Open all folds in the buffer (or up to LEVEL)."
+  (interactive "P")
+  (if (integerp level)
+      (outline-hide-sublevels level)
+    (outline-show-all)))
+
+(defun cloutlu/org-close-all-folds (&optional level)
+  "Close all folds in the buffer (or to LEVEL)."
+  (interactive "p")
+  (outline-hide-sublevels (or level 1)))
+
+(defun cloutlu/org-open-fold ()
+  "Open the current fold (but not its children)."
+  (interactive)
+  (let ((org-cycle-subtree-status 'subtree))
+    (org-cycle-internal-local)))
+
+(defun cloutlu/org-close-fold ()
+  "Close the current fold."
+  (interactive)
+  (outline-hide-subtree))
+
+(provide 'cloutlu-org-extra)
+;;; cloutlu-org-extra.el ends here
+#+end_src
+
+** Core Helper Library
+
+This library contains a set of powerful, general-purpose macros and functions
+extracted from Doom Emacs's core library. They provide more convenient and
+robust ways to handle common configuration tasks like loading packages, setting
+variables, and managing hooks.
+
+#+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-core-helpers.el" :mkdirp yes
+;;; cloutlu-core-helpers.el --- Core helper macros and functions -*- lexical-binding: t; -*-
+
+;;;; Internal Helpers (Dependencies for the public macros)
+
+(defmacro file! ()
+  "Return the file of the file this macro was called."
+  (or (bound-and-true-p byte-compile-current-file)
+      load-file-name
+      (buffer-file-name (buffer-base-buffer))
+      (let ((file (car (last current-load-list))))
+        (if (stringp file) file))
+      (error "file!: cannot deduce the current file path")))
+
+(defmacro dir! ()
+  "Return the directory of the file in which this macro was called."
+  (let (file-name-handler-alist)
+    (file-name-directory (macroexpand '(file!)))))
+
+(defun cloutlu--resolve-hook-forms (hooks)
+  "Converts a list of modes into a list of hook symbols."
+  (declare (pure t) (side-effect-free t))
+  (let ((hook-list (if (listp hooks) hooks (list hooks))))
+    (if (eq (car-safe hooks) 'quote)
+        (if (listp (cadr hooks)) (cadr hooks) (list (cadr hooks)))
+      (cl-loop for hook in hook-list
+               if (eq (car-safe hook) 'quote)
+               collect (cadr hook)
+               else collect (intern (format "%s-hook" (symbol-name hook)))))))
+
+(defun cloutlu--setq-hook-fns (hooks rest &optional singles)
+  (unless (or singles (= 0 (% (length rest) 2)))
+    (signal 'wrong-number-of-arguments (list #'evenp (length rest))))
+  (cl-loop with vars = (let ((args rest)
+                             vars)
+                         (while args
+                           (push (if singles
+                                     (list (pop args))
+                                   (cons (pop args) (pop args)))
+                                 vars))
+                         (nreverse vars))
+           for hook in (cloutlu--resolve-hook-forms hooks)
+           for mode = (string-remove-suffix "-hook" (symbol-name hook))
+           append
+           (cl-loop for (var . val) in vars
+                    collect
+                    (list var val hook
+                          (intern (format "cloutlu--setq-%s-for-%s-h"
+                                          var mode))))))
+
+(setplist 'cloutlu--fn-crawl '(%2 2 %3 3 %4 4 %5 5 %6 6 %7 7 %8 8 %9 9))
+(defun cloutlu--fn-crawl (data args)
+  (cond ((symbolp data)
+         (when-let
+             (pos (cond ((eq data '%*) 0)
+                        ((memq data '(% %1)) 1)
+                        ((get 'cloutlu--fn-crawl data))))
+           (when (and (= pos 1)
+                      (aref args 1)
+                      (not (eq data (aref args 1))))
+             (error "%% and %%1 are mutually exclusive"))
+           (aset args pos data)))
+        ((and (not (eq (car-safe data) 'fn!))
+              (or (listp data)
+                  (vectorp data)))
+         (let ((len (length data))
+               (i 0))
+           (while (< i len)
+             (cloutlu--fn-crawl (elt data i) args)
+             (cl-incf i))))))
+
+
+;;;; Public Macros
+
+;;; Configuration & Loading Helpers
+
+(defmacro after! (package &rest body)
+  "Evaluate BODY after PACKAGE has loaded. A more powerful `with-eval-after-load'.
+Supports compound package lists with :or and :and.
+Does nothing if a package is disabled or not installed."
+  (declare (indent defun) (debug t))
+  (if (symbolp package)
+      `(with-eval-after-load ',package ,@body)
+    (let ((p (car package)))
+      (cond ((memq p '(:or :any))
+             (macroexp-progn
+              (cl-loop for next in (cdr package)
+                       collect `(after! ,next ,@body))))
+            ((memq p '(:and :all))
+             (dolist (next (reverse (cdr package)) (car body))
+               (setq body `((after! ,next ,@body)))))
+            (`(after! (:and ,@package) ,@body))))))
+
+(defmacro load! (filename &optional path noerror)
+  "Load a file relative to the current executing file (`load-file-name')."
+  `(load
+    (file-name-concat ,(or path `(dir!)) ,filename)
+    ,noerror 'nomessage))
+
+(defmacro add-load-path! (&rest dirs)
+  "Add DIRS to `load-path', relative to the current file."
+  `(let ((default-directory (dir!))
+         file-name-handler-alist)
+     (dolist (dir (list ,@dirs))
+       (cl-pushnew (expand-file-name dir) load-path :test #'string=))))
+
+
+;;; Variable & Hook Management
+
+(defmacro setq! (&rest settings)
+  "A safer `setq` for setting customizable variables.
+This triggers custom setters on variables defined with `defcustom`,
+which `setq` does not. Use this instead of `setq` for package settings."
+  (macroexp-progn
+   (cl-loop for (var val) on settings by 'cddr
+            collect `(funcall (or (get ',var 'custom-set) #'set-default-toplevel-value)
+                              ',var ,val))))
+
+(defmacro add-hook! (hooks &rest rest)
+  "A convenience macro for adding N functions to M hooks."
+  (declare (indent (lambda (indent-point state)
+                     (goto-char indent-point)
+                     (when (looking-at-p "\\s-*(")
+                       (lisp-indent-defform state indent-point))))
+           (debug t))
+  (let* ((hook-forms (cloutlu--resolve-hook-forms hooks))
+         (func-forms ())
+         (defn-forms ())
+         append-p local-p remove-p depth)
+    (while (keywordp (car rest))
+      (pcase (pop rest)
+        (:append (setq append-p t))
+        (:depth  (setq depth (pop rest)))
+        (:local  (setq local-p t))
+        (:remove (setq remove-p t))))
+    (while rest
+      (let* ((next (pop rest))
+             (first (car-safe next)))
+        (push (cond ((memq first '(function nil))
+                     next)
+                    ((eq first 'quote)
+                     (let ((quoted (cadr next)))
+                       (if (atom quoted)
+                           next
+                         (when (cdr quoted)
+                           (setq rest (cons (list first (cdr quoted)) rest)))
+                         (list first (car quoted)))))
+                    ((memq first '(defun cl-defun))
+                     (push next defn-forms)
+                     (list 'function (cadr next)))
+                    ((prog1 `(lambda (&rest _) ,@(cons next rest))
+                       (setq rest nil))))
+              func-forms)))
+    `(progn
+       ,@defn-forms
+       (dolist (hook ',(nreverse hook-forms))
+         (dolist (func (list ,@func-forms))
+           ,(if remove-p
+                `(remove-hook hook func ,local-p)
+              `(add-hook hook func ,(or depth append-p) ,local-p)))))))
+
+(defmacro remove-hook! (hooks &rest rest)
+  "A convenience macro for removing N functions from M hooks."
+  (declare (indent defun) (debug t))
+  `(add-hook! ,hooks :remove ,@rest))
+
+(defmacro setq-hook! (hooks &rest var-vals)
+  "Sets buffer-local variables on HOOKS."
+  (declare (indent 1))
+  (macroexp-progn
+   (cl-loop for (var val hook fn) in (cloutlu--setq-hook-fns hooks var-vals)
+            collect `(defun ,fn (&rest _) (setq-local ,var ,val))
+            collect `(add-hook ',hook #',fn -90))))
+
+
+;;; Powerful Local Bindings
+
+(defmacro lambda! (arglist &rest body)
+  "Returns (cl-function (lambda ARGLIST BODY...))
+The closure is wrapped in `cl-function', meaning ARGLIST will accept anything
+`cl-defun' will. Implicitly adds `&allow-other-keys' if `&key' is present."
+  (declare (indent defun) (doc-string 1) (pure t) (side-effect-free t))
+  `(cl-function
+    (lambda
+      ,(letf! (defun* allow-other-keys (args)
+                (mapcar
+                 (lambda (arg)
+                   (cond ((not (listp (cdr-safe arg))) arg)
+                         ((listp arg) (allow-other-keys arg))
+                         (arg)))
+                 (if (and (memq '&key args)
+                          (not (memq '&allow-other-keys args)))
+                     (if (memq '&aux args)
+                         (let (newargs arg)
+                           (while args
+                             (setq arg (pop args))
+                             (when (eq arg '&aux)
+                               (push '&allow-other-keys newargs))
+                             (push arg newargs))
+                           (nreverse newargs))
+                       (append args (list '&allow-other-keys)))
+                   args)))
+         (allow-other-keys arglist))
+      ,@body)))
+
+(put 'defun* 'lisp-indent-function 'defun)
+(defmacro letf! (bindings &rest body)
+  "Temporarily rebind function, macros, and advice in BODY.
+A powerful combination of `cl-letf`, `cl-macrolet`, and temporary advice."
+  (declare (indent defun))
+  (setq body (macroexp-progn body))
+  (when (memq (car bindings) '(defun defun* defmacro defadvice))
+    (setq bindings (list bindings)))
+  (dolist (binding (reverse bindings) body)
+    (let ((type (car binding))
+          (rest (cdr binding)))
+      (setq
+       body (pcase type
+              (`defmacro `(cl-macrolet ((,@rest)) ,body))
+              (`defadvice
+               (if (keywordp (cadr rest))
+                   (cl-destructuring-bind (target where fn) rest
+                     `(when-let (fn ,fn)
+                        (advice-add ,target ,where fn)
+                        (unwind-protect ,body (advice-remove ,target fn))))
+                 (let* ((fn (pop rest))
+                        (argspec (pop rest)))
+                   (when (< (length argspec) 3)
+                     (setq argspec
+                           (list (nth 0 argspec)
+                                 (nth 1 argspec)
+                                 (or (nth 2 argspec) (gensym (format "%s-a" (symbol-name fn)))))))
+                   (let ((name (nth 2 argspec)))
+                     `(progn
+                        (define-advice ,fn ,argspec ,@rest)
+                        (unwind-protect ,body
+                          (advice-remove #',fn #',name)
+                          ,(if name `(fmakunbound ',name))))))))
+              (`defun
+               `(cl-letf ((,(car rest) (symbol-function #',(car rest))))
+                  (ignore ,(car rest))
+                  (cl-letf (((symbol-function #',(car rest))
+                             (lambda! ,(cadr rest) ,@(cddr rest))))
+                    ,body)))
+              (`defun*
+               `(cl-labels ((,@rest)) ,body))
+              (_
+               (when (eq (car-safe type) 'function)
+                 (setq type (list 'symbol-function type)))
+               (list 'cl-letf (list (cons type rest)) body)))))))
+
+
+;;; Concise Lambda Helpers
+
+(defmacro fn! (&rest args)
+  "Return a lambda with implicit, positional arguments.
+e.g. (fn! (message \"%s, %s\" %1 %2))"
+  `(lambda ,(let ((argv (make-vector 10 nil)))
+              (cloutlu--fn-crawl args argv)
+              `(,@(let ((i (1- (length argv)))
+                        (n -1)
+                        sym arglist)
+                    (while (> i 0)
+                      (setq sym (aref argv i))
+                      (unless (and (= n -1) (null sym))
+                        (cl-incf n)
+                        (push (or sym (intern (format "_%%%d" i)))
+                              arglist))
+                      (cl-decf i))
+                    arglist)
+                ,@(and (aref argv 0) '(&rest %*))))
+     ,@args))
+
+(defmacro cmd! (&rest body)
+  "Returns (lambda () (interactive) ,@body).
+A factory for quickly producing interactive commands."
+  (declare (doc-string 1))
+  `(lambda (&rest _) (interactive) ,@body))
+
+(defmacro cmd!! (command &optional prefix-arg &rest args)
+  "Returns a closure that interactively calls COMMAND with ARGS and PREFIX-ARG."
+  (declare (doc-string 1) (pure t) (side-effect-free t))
+  `(lambda (arg &rest _) (interactive "P")
+     (let ((current-prefix-arg (or ,prefix-arg arg)))
+       (,(if args
+             #'funcall-interactively
+           #'call-interactively)
+        ,command ,@args))))
+
+(provide 'cloutlu-core-helpers)
+;;; cloutlu-core-helpers.el ends here
+#+end_src
+

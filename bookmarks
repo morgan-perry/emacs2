@@ -1,0 +1,23 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("notes"
+ (filename . "~/doc/share/org/notes.org")
+ (front-context-string . "* Inbox\n** [2025")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 26709 31254 371332 355000))
+("uni"
+ (filename . "~/doc/share/org/uni.org")
+ (front-context-string . "#+startup: overv")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 26708 58933 663961 760000))
+("conf"
+ (filename . "~/.config/emacs/me.org")
+ (front-context-string . "#+startup: conte")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 26708 57035 77090 67000))
+)

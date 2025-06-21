@@ -1,0 +1,87 @@
+(use-package general
+    :straight t
+    :after evil evil-collection
+    :config
+    ;;
+    ;; 1. DEFINE THE MAIN LEADER KEY SYSTEM
+    ;;
+    (general-define-key
+     :states '(normal motion)
+     :keymaps 'override
+     :prefix "SPC"
+     :prefix-map 'cloutlu-leader-map)
+
+    ;; 2. CREATE THE MAIN LEADER DEFINER
+    (general-create-definer cloutlu-leader-def
+      :keymaps 'cloutlu-leader-map)
+
+    ;; Window map
+    (defvar cloutlu-window-map (make-sparse-keymap)
+      "A keymap for window management commands under SPC w.")
+    (general-create-definer cloutlu-window-def
+      :keymaps 'cloutlu-window-map)
+
+    ;; Buffer/Bookmark map
+    (defvar cloutlu-buffer-bookmark-map (make-sparse-keymap)
+      "A keymap for buffer and bookmark management commands under SPC b.")
+    (general-create-definer cloutlu-buffer-bookmark-def
+      :keymaps 'cloutlu-buffer-bookmark-map)
+
+    ;; Search Commands Keymap
+    (defvar cloutlu-search-map (make-sparse-keymap)
+      "A keymap for search commands under SPC s.")
+    (general-create-definer cloutlu-search-def
+      :keymaps 'cloutlu-search-map)
+
+    ;;
+    ;; 4. DEFINE THE KEYBINDINGS
+    (cloutlu-leader-def
+      "SPC"   '("M-x" . execute-extended-command)
+      "f f"   'find-file
+      "b b"   'switch-to-buffer
+
+      ;; Now that `cloutlu-window-map` exists, this binding will work
+      ;; without triggering the autoload logic.
+      "w"     '(:keymap cloutlu-window-map :which-key "windows")
+      "b"     '(:keymap cloutlu-buffer-bookmark-map :which-key "buffers/bookmarks")
+      "s"     '(:keymap cloutlu-search-map :which-key "search"))
+
+    ;; Now, use our window-specific definer to populate the keymap.
+    (cloutlu-window-def
+      "TAB"   'alternate-window
+      "b"     'switch-to-minibuffer-window
+      "d"     'delete-window
+      "D"     'delete-other-windows
+      "h"     'evil-window-left
+      "j"     'evil-window-down
+      "k"     'evil-window-up
+      "l"     'evil-window-right
+      "s"     'split-window-horizontally
+      "v"     'split-window-vertically
+      )
+
+    (cloutlu-buffer-bookmark-def
+      "b" 'consult-buffer
+      "B" 'consult-bookmark
+      "r" 'revert-buffer
+      )
+
+    (cloutlu-search-def
+      "s" 'consult-line
+      ))
+)
+
+(use-package evil
+  :straight t
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  :config
+  (evil-mode 1))
+
+(use-package evil-collection
+  :straight t
+  :after evil
+  :config
+  (evil-collection-init))
+
+(provide 'cloutlu-bind)
