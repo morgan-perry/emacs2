@@ -19,12 +19,14 @@
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
 
+;; Files
 "f"     (cons "files" (make-sparse-keymap))
 "f f"   'find-file
 "f d"   'dired
 "/"     'consult-ripgrep
 "f F"   'consult-fd
 
+;; Help
 "h"       (cons "help" (make-sparse-keymap))
 "h v"     'describe-variable
 "h f"     'describe-function
