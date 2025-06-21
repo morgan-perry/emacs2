@@ -3,6 +3,12 @@
   :after (evil evil-collection which-key)
   :demand t)
 
+;; Non-leader bindings
+(general-def '(normal visual)
+  "C-u" #'evil-scroll-up
+  "C-s" #'consult-line
+  "C-M-s" #'consult-line-multi)
+
 (general-define-key
  :states '(normal motion)
  :keymaps 'override
@@ -16,49 +22,47 @@
 ;; Define the general keybindings
 (cloutlu-leader-def
   "SPC"   '("M-x" . execute-extended-command)
+  ;; Misc
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-
-;; Files
-"f"     (cons "files" (make-sparse-keymap))
-"f f"   'find-file
-"f d"   'dired
-"/"     'consult-ripgrep
-"f F"   'consult-fd
-
-;; Help
-"h"       (cons "help" (make-sparse-keymap))
-"h v"     'describe-variable
-"h f"     'describe-function
-"h k"     'describe-key
-"h P"     'describe-package
-"h m"     'describe-mode
-"h K"     'describe-keymap
-"h x"     'describe-command
-
-;; Windows
-"w"       (cons "windows" (make-sparse-keymap))
-"w TAB"   'alternate-window
-"w b"     'switch-to-minibuffer-window
-"w d"     'delete-window
-"w o"     'delete-other-windows
-"w h"     'evil-window-left
-"w j"     'evil-window-down
-"w k"     'evil-window-up
-"w l"     'evil-window-right
-"w v"     'split-window-horizontally
-"w s"     'split-window-vertically
-
-;; Buffers/Bookmarks
-"b"   (cons "buffers/bookmarks" (make-sparse-keymap))
-"`"   'previous-buffer 
-"b b" 'consult-buffer
-"b B" 'consult-bookmark
-"b r" 'revert-buffer
-
-;; Search
-"s"   (cons "search" (make-sparse-keymap))
-"s s" 'consult-line)
+  "g g"   'magit
+  ;; Files
+  "f"     (cons "files" (make-sparse-keymap))
+  "f f"   'find-file
+  "f d"   'dired
+  "/"     'consult-ripgrep
+  "f F"   'consult-fd
+  "o -"   'dired-jump
+  ;; Help
+  "h"       (cons "help" (make-sparse-keymap))
+  "h v"     'describe-variable
+  "h f"     'describe-function
+  "h k"     'describe-key
+  "h P"     'describe-package
+  "h m"     'describe-mode
+  "h K"     'describe-keymap
+  "h x"     'describe-command
+  ;; Windows
+  "w"       (cons "windows" (make-sparse-keymap))
+  "w TAB"   'alternate-window
+  "w b"     'switch-to-minibuffer-window
+  "w d"     'delete-window
+  "w o"     'delete-other-windows
+  "w h"     'evil-window-left
+  "w j"     'evil-window-down
+  "w k"     'evil-window-up
+  "w l"     'evil-window-right
+  "w v"     'split-window-horizontally
+  "w s"     'split-window-vertically
+  ;; Buffers/Bookmarks
+  "b"   (cons "buffers/bookmarks" (make-sparse-keymap))
+  "`"   'previous-buffer 
+  "b b" 'consult-buffer
+  "RET" 'consult-bookmark
+  "b r" 'revert-buffer
+  ;; Search
+  "s"   (cons "search" (make-sparse-keymap))
+  "s s" 'consult-line)
 
 (use-package evil
   :straight t
