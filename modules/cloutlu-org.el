@@ -13,7 +13,6 @@
   (:keymaps 'org-mode-map
 	    :states 'normal
 	    :prefix "SPC"
-	    "s i" #'consult-org-heading
 	    "o a" (cons "org archiving/attachments" (make-sparse-keymap))
 	    "o a A" #'org-archive-subtree-default
 	    "o a a" #'org-attach

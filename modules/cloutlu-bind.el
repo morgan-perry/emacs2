@@ -26,6 +26,8 @@
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
   "g g"   'magit
+  "h m"   'consult-man
+  "h i"   'consult-info
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -58,11 +60,16 @@
   "b"   (cons "buffers/bookmarks" (make-sparse-keymap))
   "`"   'previous-buffer 
   "b b" 'consult-buffer
+  "p b" 'consult-project-buffer
   "RET" 'consult-bookmark
   "b r" 'revert-buffer
   ;; Search
   "s"   (cons "search" (make-sparse-keymap))
-  "s s" 'consult-line)
+  "s s" 'consult-line
+  "s i" 'consult-outline
+  "s g" 'consult-git-grep
+  "s k" 'consult-focus-lines
+  )
 
 (use-package evil
   :straight t
