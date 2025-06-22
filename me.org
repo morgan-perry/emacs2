@@ -750,6 +750,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 (straight-use-package '(org :type built-in))
 (use-package org-modern
   :straight t
+  :after org
   :config
   (global-org-modern-mode))
 #+end_src
@@ -778,6 +779,7 @@ This hides the properties drawer and some other metadata in org files that I don
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-tidy
   :straight t
+  :after org
   :general
   (:keymaps 'org-mode-map
 	    :states 'normal
@@ -1158,7 +1160,6 @@ for each.
 #+begin_src emacs-lisp :tangle "modules/cloutlu-which-key.el" :mkdirp yes
 (provide 'cloutlu-which-key)
 #+end_src
-
 
 ** Zen Mode
 This module provides a distraction-free "zen" or "focus" mode. It uses

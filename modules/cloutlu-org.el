@@ -48,6 +48,7 @@
 (straight-use-package '(org :type built-in))
 (use-package org-modern
   :straight t
+  :after org
   :config
   (global-org-modern-mode))
 
@@ -66,6 +67,7 @@
 
 (use-package org-tidy
   :straight t
+  :after org
   :general
   (:keymaps 'org-mode-map
 	    :states 'normal
