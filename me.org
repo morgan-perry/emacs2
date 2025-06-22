@@ -793,7 +793,6 @@ links are easier to read at a later date.
 (use-package org-appear
   :straight t
   :after org
-  :hook (org-mode . org-appear-mode)
   :config
   (setq org-hide-emphasis-markers t
         org-appear-autoemphasis t
@@ -801,7 +800,8 @@ links are easier to read at a later date.
 	org-appear-autoentities t
 	org-appear-autosubmarkers t
 	org-appear-autokeywords t
-	org-appear-delay 0.75))
+	org-appear-delay 0.75)
+  (add-hook 'org-mode-hook 'org-appear-mode))
 #+end_src
 
 *** Org Tidy
