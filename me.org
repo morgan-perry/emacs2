@@ -746,6 +746,8 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 
 *** Org modern
 
+This makes org-mode look prettier.
+
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (straight-use-package '(org :type built-in))
 (use-package org-modern
@@ -756,6 +758,9 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 #+end_src
 
 *** Org appear
+
+This hides various org related markup so things like emphasis and
+links are easier to read at a later date.
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-appear
@@ -936,6 +941,9 @@ My general note taking system. Regular org roam is just as nice but I like to pr
 :ID:       3ace3042-51dc-4b92-8e8e-4d0b5133b85a
 :END:
 
+
+Allows me to download images or take screenshots and store them in my general org attachment directory. Once again boldly taken from Doom Emacs.
+
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-download
   :straight t
@@ -976,6 +984,7 @@ My general note taking system. Regular org roam is just as nice but I like to pr
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (provide 'cloutlu-org)
 #+end_src
+
 ** Vertico Setup
 
 These modules are generally for a (personally) more preferable
