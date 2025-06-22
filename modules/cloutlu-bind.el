@@ -48,7 +48,7 @@
   "w"       (cons "windows" (make-sparse-keymap))
   "w TAB"   'alternate-window
   "w b"     'switch-to-minibuffer-window
-  "w d"     'delete-window
+  "w q"     'delete-window
   "w o"     'delete-other-windows
   "w h"     'evil-window-left
   "w j"     'evil-window-down
@@ -63,12 +63,13 @@
   "p b" 'consult-project-buffer
   "RET" 'consult-bookmark
   "b r" 'revert-buffer
+  "b q" 'kill-buffer
   ;; Search
   "s"   (cons "search" (make-sparse-keymap))
   "s s" 'consult-line
   "s i" 'consult-outline
   "s g" 'consult-git-grep
-  "s k" 'consult-focus-lines
+  "s l" 'consult-focus-lines
   )
 
 (use-package evil
