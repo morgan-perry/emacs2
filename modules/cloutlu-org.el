@@ -1,4 +1,3 @@
-(setq debug-on-warning t)
 (use-package org
   :ensure nil
   :init
@@ -184,3 +183,61 @@
 ;; oc-csl requires citeproc, which requires the top-level org, so loading oc-csl
 ;; after oc interferes with incremental loading of Org
 (after! org (require 'oc-csl))
+
+;; Autoload all these commands that org-attach doesn't autoload itself
+(use-package org-attach
+  :commands (org-attach-delete-one
+	     org-attach-delete-all
+	     org-attach-new
+	     org-attach-open
+	     org-attach-open-in-emacs
+	     org-attach-reveal-in-emacs
+	     org-attach-url
+	     org-attach-set-directory
+	     org-attach-sync)
+  :config
+  ;; Centralized attachments directory by default
+  (setq org-attach-id-dir (expand-file-name ".attach/" org-directory))
+
+  (setq org-attach-store-link-p 'attached     ; store link after attaching files
+	org-attach-use-inheritance t) ; inherit properties from parent nodes
+  (after! projectile
+    (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir))
+
+;; Add inline image previews for attachment links
+(org-link-set-parameters "attachment" :image-data-fun #'+org-image-file-data-fn))
+
+(use-package org-download
+  :straight t
+  :config
+  (setq org-download-image-dir 'org-attach-dir
+	org-download-method 'attach
+	org-download-screenshot-method
+	(cond ((executable-find "maim")  "maim -s %s")
+              ((executable-find "scrot") "scrot -s %s")
+              ((executable-find "gnome-screenshot") "gnome-screenshot -a -f %s"))
+	org-download-heading-lvl nil
+	org-download-link-format "[[download:%s]]\n"
+	org-download-annotate-function (lambda (_link) "")
+	org-download-link-format-function
+	(lambda (filename)
+          (if (eq org-download-method 'attach)
+              (format "[[attachment:%s]]\n"
+                      (org-link-escape
+                       (file-relative-name filename (org-attach-dir))))
+            ;; Handle non-image files a little differently. Images should be
+            ;; inserted as normal with previews. Other files, like pdfs or zips,
+            ;; should be linked to, with an icon indicating the type of file.
+            (format (concat (unless (image-type-from-file-name filename)
+                              (concat (+org-attach-icon-for filename)
+                                      " "))
+                            org-download-link-format)
+                    (org-link-escape
+                     (funcall org-download-abbreviate-filename-function filename)))))
+        org-download-abbreviate-filename-function
+	(lambda (path)
+          (if (file-in-directory-p path org-download-image-dir)
+              (file-relative-name path org-download-image-dir)
+            path))))
+
+(provide 'cloutlu-org)
