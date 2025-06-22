@@ -34,8 +34,10 @@
 	   "z n" #'cloutlu/smart-narrow
 	   "z N" #'cloutlu/widen-indirectly-narrowed-buffer
 	   "z i" #'org-toggle-inline-images)
-
-  )
+  (:states '(insert normal)
+	   :keymaps 'org-mode-map
+	   "C-<tab>" 'org-cycle-list-bullet)
+)
 
 
 (use-package evil-org
