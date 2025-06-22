@@ -345,6 +345,26 @@ The best git client :)
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package magit
   :straight t) 
+** Spell Check (Jinx)
+
+A spell checker that uses =libenchant=, I have both a personal
+dictionary this is symlinked to =libenchant='s default personal config
+(by default its =~/.config/enchant/en_AU.dic=) and also a larger
+Australian =aspell= dictionary that matches the defaults of =en_US-large=
+that appears in most distro's repos. It was generated from [[http://app.aspell.net/create?defaults=en_AU-large][this]]
+website.
+
+#+begin_src emacs-lisp :tangle "init.el"
+;; Spell Checker
+(use-package jinx
+  :straight t
+  :hook (emacs-startup . global-jinx-mode)
+  :general
+  ("M-$" #'jinx-correct)
+  (:state 'normal
+	  "C-;" #'jinx-correct)
+  :config
+  (setq jinx-languages "en-custom")) ;; From a custom dictionary
 #+end_src
 
 ** Git auto commit mode
