@@ -172,7 +172,12 @@
   (add-hook! 'completion-at-point-functions #'cape-elisp-block))
 
 (use-package magit
-  :straight t)
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "g g" #'magit))
+
 (use-package jinx
   :straight t
   :hook (emacs-startup . global-jinx-mode)

@@ -224,7 +224,8 @@ This loads the individual modules from the =modules= folder.
 ** tempel
 
 A basic templating system, this shouldn't replace yasnippet but I have
-no need to even use that thing in the first place, this is more than enough.
+no need to even use that thing in the first place, this is more than
+enough.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package tempel
@@ -293,7 +294,8 @@ org-mode
 #+end_src
 ** Corfu
 
-This is the completion popup along with capf functionality provided from cape.
+This is the completion popup along with capf functionality provided
+from cape.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package corfu
@@ -344,7 +346,13 @@ The best git client :)
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package magit
-  :straight t) 
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "g g" #'magit))
+#+end_src
+
 ** Spell Check (Jinx)
 
 A spell checker that uses =libenchant=, I have both a personal
@@ -429,7 +437,6 @@ the highest priority.
   ;; Misc
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-  "g g"   'magit
   "h m"   'consult-man
   "h i"   'consult-info
   ;; Files
@@ -2091,3 +2098,5 @@ keybind (as if this keybind never existed)."
 ;;; cloutlu-core-helpers.el ends here
 #+end_src
 
+# Local Variables:
+# End:

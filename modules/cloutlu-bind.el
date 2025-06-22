@@ -25,7 +25,6 @@
   ;; Misc
   "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-  "g g"   'magit
   "h m"   'consult-man
   "h i"   'consult-info
   ;; Files
