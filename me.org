@@ -754,6 +754,23 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
   (global-org-modern-mode))
 #+end_src
 
+*** Org appear
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-appear
+  :straight t
+  :after org
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-hide-emphasis-markers t
+        org-appear-autoemphasis t
+	org-appear-autolinks t
+	org-appear-autoentities t
+	org-appear-autosubmarkers t
+	org-appear-autokeywords t
+	org-appear-delay 2))
+#+end_src
+
 *** Org Tidy
 
 This hides the properties drawer and some other metadata in org files that I don't interactic

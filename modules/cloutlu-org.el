@@ -51,6 +51,19 @@
   :config
   (global-org-modern-mode))
 
+(use-package org-appear
+  :straight t
+  :after org
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-hide-emphasis-markers t
+        org-appear-autoemphasis t
+	org-appear-autolinks t
+	org-appear-autoentities t
+	org-appear-autosubmarkers t
+	org-appear-autokeywords t
+	org-appear-delay 2))
+
 (use-package org-tidy
   :straight t
   :general
