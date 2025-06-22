@@ -85,8 +85,8 @@
       cloutlu-data-dir  "~/.local/data"
       cloutlu-state-dir "~/.local/state")
 
-(setq create-lockfiles nil
-      make-backup-files nil
+(setq create-lockfiles t
+      make-backup-files t
       ;; But in case the user does enable it, some sensible defaults:
       version-control t     ; number each backup file
       backup-by-copying t   ; instead of renaming current file (clobbers links)
@@ -178,6 +178,7 @@
 	   :prefix "SPC"
 	   "g g" #'magit))
 
+;; Spell Checker
 (use-package jinx
   :straight t
   :hook (emacs-startup . global-jinx-mode)
@@ -186,7 +187,7 @@
   (:state 'normal
 	  "C-;" #'jinx-correct)
   :config
-  (setq jinx-languages "en-custom"))
+  (setq jinx-languages "en-custom")) ;; From a custom dictionary
 
 (use-package git-auto-commit-mode
   :straight t)

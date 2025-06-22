@@ -190,8 +190,8 @@ This loads the individual modules from the =modules= folder.
       cloutlu-data-dir  "~/.local/data"
       cloutlu-state-dir "~/.local/state")
 
-(setq create-lockfiles nil
-      make-backup-files nil
+(setq create-lockfiles t
+      make-backup-files t
       ;; But in case the user does enable it, some sensible defaults:
       version-control t     ; number each backup file
       backup-by-copying t   ; instead of renaming current file (clobbers links)
@@ -957,10 +957,10 @@ My general note taking system. Regular org roam is just as nice but I like to pr
   (setq org-attach-store-link-p 'attached     ; store link after attaching files
 	org-attach-use-inheritance t) ; inherit properties from parent nodes
   (after! projectile
-    (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir)))
+    (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir))
 
 ;; Add inline image previews for attachment links
-(org-link-set-parameters "attachment" :image-data-fun #'+org-image-file-data-fn)
+(org-link-set-parameters "attachment" :image-data-fun #'+org-image-file-data-fn))
 #+end_src
 
 *** Org Download                                                   :ATTACH:
