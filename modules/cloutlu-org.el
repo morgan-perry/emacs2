@@ -63,7 +63,7 @@
 	org-appear-autoentities t
 	org-appear-autosubmarkers t
 	org-appear-autokeywords t
-	org-appear-delay 2))
+	org-appear-delay 0.75))
 
 (use-package org-tidy
   :straight t

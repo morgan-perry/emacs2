@@ -769,7 +769,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 	org-appear-autoentities t
 	org-appear-autosubmarkers t
 	org-appear-autokeywords t
-	org-appear-delay 2))
+	org-appear-delay 0.75))
 #+end_src
 
 *** Org Tidy
