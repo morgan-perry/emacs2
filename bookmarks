@@ -2,7 +2,13 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("org-capture-last-stored"
+(("csse3100.org"
+ (filename . "~/doc/share/log-graph/pages/csse3100.org")
+ (front-context-string . "[[attachment:ima")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 26712 3548 74828 369000))
+("org-capture-last-stored"
  (filename . "~/doc/share/org/roam/orton2024germansnotsorry.org")
  (front-context-string)
  (rear-context-string . "ot About Nazism\n")
