@@ -4,7 +4,8 @@
   (setq org-directory (expand-file-name "~/doc/share/org")
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
-	org-src-preserve-indentation t)
+	org-src-preserve-indentation t
+	org-capture-bookmark nil)
   ;; Use :general to define high-precedence, buffer-local keys for Org mode.
   ;; These keys do NOT use the SPC leader.
   :general
@@ -240,82 +241,25 @@
               (file-relative-name path org-download-image-dir)
             path))))
 
-;; Variables for the capture frame
-(defvar cloutlu-org-capture-fn #'org-capture
-  "Command to use to initiate org-capture. Defaults to `org-capture`.")
+;; Taken from https://gist.github.com/progfolio/af627354f87542879de3ddc30a31adc1
+(defun cloutlu/delete-capture-frame (&rest _)
+  "Delete frame with its name frame-parameter set to \"capture\"."
+  (if (equal "capture" (frame-parameter nil 'name))
+      (delete-frame)))
+(advice-add 'org-capture-finalize :after #'cloutlu/delete-capture-frame)
 
-(defvar cloutlu-org-capture-frame-parameters
-  `((name . "cloutlu-capture") ; Custom name for easy identification
-    (width . 70)
-    (height . 25)
-    (transient . t) ; Make it transient (cleans up when main Emacs exits)
-    ;; Conditional frame parameters for Wayland/X, similar to Doom
-    ,@(when (featurep :system 'linux)
-        `((window-system . ,(if (boundp 'pgtk-initialized) 'pgtk 'x))
-          (display . ,(or (getenv "WAYLAND_DISPLAY")
-                          (getenv "DISPLAY")
-                          ":0"))))
-    ;; Keep menu bar for macOS, as per Doom's original
-    ,@(if (featurep :system 'macos) '(menu-bar-lines . 1)))
-  "Parameters for the dedicated Org Capture frame.")
-
-;; Predicate to check if current frame is a capture frame
-(defun cloutlu-org-capture-frame-p (&rest _)
-  "Return t if the current frame is an org-capture frame opened by
-`cloutlu-org-capture/open-frame'."
-  (and (equal (alist-get 'name cloutlu-org-capture-frame-parameters)
-              (frame-parameter nil 'name))
-       (frame-parameter nil 'transient)))
-
-;; Hook to clean up the capture frame
-(defun cloutlu-org-capture-cleanup-frame-h ()
-  "Closes the org-capture frame once done adding an entry.
-  Only closes if it's a `cloutlu-org-capture` frame and not refiling."
-  (when (and (cloutlu-org-capture-frame-p)
-             ;; `org-capture-is-refiling` is an Org variable that Org sets
-             ;; during refiling. It needs `org-capture` to be loaded.
-             (not (bound-and-true-p org-capture-is-refiling)))
-    (delete-frame nil t)))
-
-;; The main function to open the capture frame
-(defun cloutlu-org-capture/open-frame (&optional initial-input key)
-  "Opens the org-capture window in a floating frame that cleans itself up.
-  Can be called from an external shell script: `emacsclient --eval \"(cloutlu-org-capture/open-frame \\\"Initial text\\\" \\\"t\\\")\"`"
+(defun cloutlu/org-capture-frame ()
+  "Run org-capture in its own frame."
   (interactive)
-  (when (and initial-input (string-empty-p initial-input))
-    (setq initial-input nil))
-  (when (and key (string-empty-p key))
-    (setq key nil))
-
-  (let* ((frame-title-format "") ; Prevent frame from showing buffer name
-         (frame (if (cloutlu-org-capture-frame-p)
-                    (selected-frame)
-                  (make-frame cloutlu-org-capture-frame-parameters))))
-    (select-frame-set-input-focus frame)
-    (with-selected-frame frame
-      ;; Ensure org-capture is loaded before we try to use it
-      (require 'org-capture)
-      ;; Add hooks to close the frame once capture is finalized or aborted.
-      ;; `org-capture-after-finalize-hook` and `org-capture-after-abort-hook`
-      ;; are standard Org hooks, so `add-hook` will work.
-      (add-hook 'org-capture-after-finalize-hook #'cloutlu-org-capture-cleanup-frame-h)
-      (add-hook 'org-capture-after-abort-hook #'cloutlu-org-capture-cleanup-frame-h)
-      (condition-case ex
-          ;; Replace `pop-to-buffer` temporarily to avoid jumping around.
-          ;; `letf!` is from your `cloutlu-core-helpers.el`.
-          (letf! ((#'pop-to-buffer #'switch-to-buffer))
-            ;; Use a scratch buffer or a new temporary buffer as fallback
-            ;; for `doom-fallback-buffer`.
-            (switch-to-buffer (get-buffer-create "*Org Capture Temp*"))
-            (let ((org-capture-initial initial-input)
-                  org-capture-entry)
-              (when (and key (not (string-empty-p key)))
-                ;; `org-capture-select-template` is an Org function.
-                (setq org-capture-entry (org-capture-select-template key)))
-              ;; Call our custom capture function variable.
-              (funcall cloutlu-org-capture-fn)))
-        ('error
-         (message "cloutlu-org-capture: %s" (error-message-string ex))
-         (delete-frame frame))))))
+  (require 'cl-lib)
+  (select-frame-by-name "capture")
+  (delete-other-windows)
+  (cl-letf (((symbol-function 'switch-to-buffer-other-window) #'switch-to-buffer))
+    (condition-case err
+        (org-capture)
+      ;; "q" signals (error "Abort") in `org-capture'
+      ;; delete the newly created frame in this scenario.
+      (user-error (when (string= (cadr err) "Abort")
+                    (delete-frame))))))
 
 (provide 'cloutlu-org)
