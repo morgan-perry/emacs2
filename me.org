@@ -1017,6 +1017,12 @@ Allows me to download images or take screenshots and store them in my general or
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-download
   :straight t
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "m a c" #'org-download-screenshot
+	    "m a y" #'org-download-yank)
   :config
   (setq org-download-image-dir 'org-attach-dir
 	org-download-method 'attach

@@ -6,6 +6,24 @@
 	org-imenu-depth 7
 	org-src-preserve-indentation t
 	org-capture-bookmark nil)
+
+  ;; (defun org-add-my-extra-fonts ()
+  ;;   "Add custom font-lock keywords for question emphasis '?text?'."
+  ;;   (add-to-list 'org-font-lock-extra-keywords
+  ;; 		 '(;; This is the corrected regular expression for the '?' marker.
+  ;; 		   ;; Note the extra '\\' before each '?' to escape it.
+  ;; 		   "\\(\\?\\)\\([^\n\r\t]+?\\)\\(\\?\\)"
+
+  ;; 		   ;; This part applies the faces.
+  ;; 		   ;; I've used a generic 'warning' face as an example.
+  ;; 		   ;; You can replace it with your own face, like 'my-org-question-face'.
+  ;; 		   (1 '(face warning invisible t)) ; Group 1 (opening '?') is made invisible
+  ;; 		   (2 'warning t)                  ; Group 2 (the text) gets the color
+  ;; 		   (3 '(face warning invisible t))) ; Group 3 (closing '?') is made invisible
+  ;; 		 t))
+
+  ;; (add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
+
   ;; Use :general to define high-precedence, buffer-local keys for Org mode.
   ;; These keys do NOT use the SPC leader.
   :general
@@ -38,13 +56,24 @@
   (:states '(insert normal)
 	   :keymaps 'org-mode-map
 	   "C-<tab>" 'org-cycle-list-bullet)
-)
+  )
 
 
 (use-package evil-org
   :straight t
   :after (org evil consult org-capture)
   :hook (org-mode . evil-org-mode))
+
+(defun org-add-my-extra-fonts ()
+  "Add custom font-lock keywords for question emphasis '?text?'."
+  (add-to-list 'org-font-lock-extra-keywords
+    '("\\(\\?\\)\\([^\n\r\t]+?\\)\\(\\?\\)"
+      (1 '(face warning invisible t))
+      (2 'warning t)
+      (3 '(face warning invisible t)))
+    t))
+
+(add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
 
 (straight-use-package '(org :type built-in))
 (use-package org-modern
@@ -210,6 +239,12 @@
 
 (use-package org-download
   :straight t
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "m a c" #'org-download-screenshot
+	    "m a y" #'org-download-yank)
   :config
   (setq org-download-image-dir 'org-attach-dir
 	org-download-method 'attach
@@ -240,26 +275,5 @@
           (if (file-in-directory-p path org-download-image-dir)
               (file-relative-name path org-download-image-dir)
             path))))
-
-;; Taken from https://gist.github.com/progfolio/af627354f87542879de3ddc30a31adc1
-(defun cloutlu/delete-capture-frame (&rest _)
-  "Delete frame with its name frame-parameter set to \"capture\"."
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
-(advice-add 'org-capture-finalize :after #'cloutlu/delete-capture-frame)
-
-(defun cloutlu/org-capture-frame ()
-  "Run org-capture in its own frame."
-  (interactive)
-  (require 'cl-lib)
-  (select-frame-by-name "capture")
-  (delete-other-windows)
-  (cl-letf (((symbol-function 'switch-to-buffer-other-window) #'switch-to-buffer))
-    (condition-case err
-        (org-capture)
-      ;; "q" signals (error "Abort") in `org-capture'
-      ;; delete the newly created frame in this scenario.
-      (user-error (when (string= (cadr err) "Abort")
-                    (delete-frame))))))
 
 (provide 'cloutlu-org)
