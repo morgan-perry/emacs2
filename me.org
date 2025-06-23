@@ -1055,6 +1055,21 @@ Allows me to download images or take screenshots and store them in my general or
             path))))
 #+end_src
 
+*** Org-cliplink
+
+Thank you Mr. Azozin
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-cliplink
+  :straight t
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "m l c" #'org-cliplink
+	    "m l C" #'org-cliplink-capture))
+#+end_src
+
 *** COMMENT Org Capture Server
 
 Taken from a [[https://gist.github.com/progfolio/af627354f87542879de3ddc30a31adc1][Github Gist]], 

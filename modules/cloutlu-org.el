@@ -276,4 +276,13 @@
               (file-relative-name path org-download-image-dir)
             path))))
 
+(use-package org-cliplink
+  :straight t
+  :general
+  (:keymaps 'org-mode-map
+	    :states 'normal
+	    :prefix "SPC"
+	    "m l c" #'org-cliplink
+	    "m l C" #'org-cliplink-capture))
+
 (provide 'cloutlu-org)
