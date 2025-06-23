@@ -100,7 +100,7 @@
 ;; Disable the damn thing by making it disposable.
 (setq custom-file (make-temp-file "emacs-custom-"))
 
-(setq initial-buffer-choice t)
+(setq initial-buffer-choice nil)
 (setq initial-major-mode 'lisp-interaction-mode)
 (setq initial-scratch-message
       (format ";; This is `%s'.  Use `%s' to evaluate and print results.\n\n"
