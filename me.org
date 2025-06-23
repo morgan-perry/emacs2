@@ -212,7 +212,7 @@ This loads the individual modules from the =modules= folder.
 *** Start with scratch buffer
 
 #+begin_src emacs-lisp :tangle "init.el"
-(setq initial-buffer-choice t)
+(setq initial-buffer-choice nil)
 (setq initial-major-mode 'lisp-interaction-mode)
 (setq initial-scratch-message
       (format ";; This is `%s'.  Use `%s' to evaluate and print results.\n\n"
@@ -732,6 +732,24 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 	org-imenu-depth 7
 	org-src-preserve-indentation t
 	org-capture-bookmark nil)
+
+  ;; (defun org-add-my-extra-fonts ()
+  ;;   "Add custom font-lock keywords for question emphasis '?text?'."
+  ;;   (add-to-list 'org-font-lock-extra-keywords
+  ;; 		 '(;; This is the corrected regular expression for the '?' marker.
+  ;; 		   ;; Note the extra '\\' before each '?' to escape it.
+  ;; 		   "\\(\\?\\)\\([^\n\r\t]+?\\)\\(\\?\\)"
+
+  ;; 		   ;; This part applies the faces.
+  ;; 		   ;; I've used a generic 'warning' face as an example.
+  ;; 		   ;; You can replace it with your own face, like 'my-org-question-face'.
+  ;; 		   (1 '(face warning invisible t)) ; Group 1 (opening '?') is made invisible
+  ;; 		   (2 'warning t)                  ; Group 2 (the text) gets the color
+  ;; 		   (3 '(face warning invisible t))) ; Group 3 (closing '?') is made invisible
+  ;; 		 t))
+
+  ;; (add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
+
   ;; Use :general to define high-precedence, buffer-local keys for Org mode.
   ;; These keys do NOT use the SPC leader.
   :general
@@ -764,13 +782,33 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
   (:states '(insert normal)
 	   :keymaps 'org-mode-map
 	   "C-<tab>" 'org-cycle-list-bullet)
-)
+  )
 
 
 (use-package evil-org
   :straight t
   :after (org evil consult org-capture)
   :hook (org-mode . evil-org-mode))
+#+end_src
+
+*** Org Question Emphasis
+
+Adds a =?= character to the emphasis list so I can ask meta questions to
+myself and have it coloured. It doesn't yet work with [[id:e14bb58c-e4a4-42e0-8873-9b6c99db8b76][Org Appear]], and
+I do not truly care enough to make it work :).  Originally found from
+[[https://emacs.stackexchange.com/questions/35626/how-to-make-my-own-org-mode-text-emphasis-work-again][here]].
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(defun org-add-my-extra-fonts ()
+  "Add custom font-lock keywords for question emphasis '?text?'."
+  (add-to-list 'org-font-lock-extra-keywords
+    '("\\(\\?\\)\\([^\n\r\t]+?\\)\\(\\?\\)"
+      (1 '(face warning invisible t))
+      (2 'warning t)
+      (3 '(face warning invisible t)))
+    t))
+
+(add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
 #+end_src
 
 *** Org modern
@@ -787,6 +825,9 @@ This makes org-mode look prettier.
 #+end_src
 
 *** Org appear
+:PROPERTIES:
+:ID:       e14bb58c-e4a4-42e0-8873-9b6c99db8b76
+:END:
 
 This hides various org related markup so things like emphasis and
 links are easier to read at a later date.
