@@ -60,7 +60,8 @@
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
 (require 'cloutlu-org)
-(require 'cloutlu-zen)
+(when (window-system)
+  (require 'cloutlu-zen))
 
 ;; Make native compilation silent and prune its cache.
 (when (native-comp-available-p)
