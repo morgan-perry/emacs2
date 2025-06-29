@@ -157,8 +157,9 @@ This loads the individual modules from the =modules= folder.
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
 (require 'cloutlu-org)
-(when (window-system)
-  (require 'cloutlu-zen))
+;; (when (window-system)
+;;   (require 'cloutlu-zen))
+(if (window-system) (require 'cloutlu-zen) (xterm-mouse-mode t))
 #+end_src
 
 ** Tweaks

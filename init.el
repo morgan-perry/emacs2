@@ -60,8 +60,9 @@
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
 (require 'cloutlu-org)
-(when (window-system)
-  (require 'cloutlu-zen))
+;; (when (window-system)
+;;   (require 'cloutlu-zen))
+(if (window-system) (require 'cloutlu-zen) (xterm-mouse-mode t))
 
 ;; Make native compilation silent and prune its cache.
 (when (native-comp-available-p)

@@ -1,4 +1,4 @@
-  ;;; Dired file manager and prot-dired.el extras (not actually lol)
+;;; Dired file manager and prot-dired.el extras (not actually lol)
 (use-package dired
   :ensure nil
   :commands (dired)
