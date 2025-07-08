@@ -1,4 +1,4 @@
-;;; cloutlu-narrow.el --- Indirect narrowing and widening functions -*- lexical-binding: t; -*-
+  ;;; cloutlu-narrow.el --- Indirect narrowing and widening functions -*- lexical-binding: t; -*-
 
 (defvar cloutlu--narrowed-base-buffer nil
   "The original buffer that was indirectly narrowed.")
