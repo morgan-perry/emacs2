@@ -857,7 +857,7 @@ This makes org-mode look prettier.
   (global-org-modern-mode))
 #+end_src
 
-*** Org appear
+*** COMMENT Org appear
 :PROPERTIES:
 :ID:       e14bb58c-e4a4-42e0-8873-9b6c99db8b76
 :END:
@@ -869,15 +869,31 @@ links are easier to read at a later date.
 (use-package org-appear
   :straight t
   :after org
+  :hook (org-mode . org-appear-mode)
   :config
   (setq org-hide-emphasis-markers t
-        org-appear-autoemphasis t
+        org-appear-autoemphasis nil
 	org-appear-autolinks t
 	org-appear-autoentities t
 	org-appear-autosubmarkers t
 	org-appear-autokeywords t
-	org-appear-delay 0.75)
-  (add-hook 'org-mode-hook 'org-appear-mode))
+	org-appear-delay 0.75))
+#+end_src
+
+*** Org expose emphasis markers
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-expose-emphasis-markers
+  :straight t
+  :config
+  ;; 1. make sure `org-hide-emphasis-markers' is true
+  (setq org-hide-emphasis-markers t)
+
+  ;; 2. (optional) set the exposing scope, default value is 'item
+  (setq org-expose-emphasis-markers-type 'item)
+
+  ;; 3. turn on the mode
+  (add-hook 'org-mode-hook (lambda () (org-expose-emphasis-markers-mode t))))
 #+end_src
 
 *** Org Tidy
