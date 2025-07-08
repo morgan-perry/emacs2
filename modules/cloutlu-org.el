@@ -6,6 +6,38 @@
 	org-imenu-depth 7
 	org-src-preserve-indentation t
 	org-capture-bookmark nil)
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"  ; A task that needs doing & is ready to do
+           "PROJ(p)"  ; A project, which usually contains other tasks
+           "LOOP(r)"  ; A recurring task
+           "STRT(s)"  ; A task that is in progress
+           "WAIT(w)"  ; Something external is holding up this task
+           "HOLD(h)"  ; This task is paused/on hold because of me
+           "IDEA(i)"  ; An unconfirmed and unapproved task or notion
+           "|"
+           "DONE(d)"  ; Task successfully completed
+           "KILL(k)") ; Task was cancelled, aborted, or is no longer applicable
+          (sequence
+           "[ ](T)"   ; A task that needs doing
+           "[-](S)"   ; Task is in progress
+           "[?](W)"   ; Task is being held up or paused
+           "|"
+           "[X](D)")  ; Task was completed
+          (sequence
+           "|"
+           "OKAY(o)"
+           "YES(y)"
+           "NO(n)"))
+        org-todo-keyword-faces
+        '(("[-]"  . +org-todo-active)
+          ("STRT" . +org-todo-active)
+          ("[?]"  . +org-todo-onhold)
+          ("WAIT" . +org-todo-onhold)
+          ("HOLD" . +org-todo-onhold)
+          ("PROJ" . +org-todo-project)
+          ("NO"   . +org-todo-cancel)
+          ("KILL" . +org-todo-cancel)))
 
   ;; (defun org-add-my-extra-fonts ()
   ;;   "Add custom font-lock keywords for question emphasis '?text?'."
@@ -43,6 +75,9 @@
 	    "o a r" #'org-attach-reveal
 	    "o a R" #'org-attach-reveal-in-emacs
 	    "o a u" #'org-attach-url
+
+	    "o a r" #'org-refile
+	    "o a R" #'org-refile-copy
 	    )
 
   ;; A standard Org binding
@@ -82,18 +117,17 @@
   :config
   (global-org-modern-mode))
 
-(use-package org-appear
+(use-package org-expose-emphasis-markers
   :straight t
-  :after org
   :config
-  (setq org-hide-emphasis-markers t
-        org-appear-autoemphasis t
-	org-appear-autolinks t
-	org-appear-autoentities t
-	org-appear-autosubmarkers t
-	org-appear-autokeywords t
-	org-appear-delay 0.75)
-  (add-hook 'org-mode-hook 'org-appear-mode))
+  ;; 1. make sure `org-hide-emphasis-markers' is true
+  (setq org-hide-emphasis-markers t)
+
+  ;; 2. (optional) set the exposing scope, default value is 'item
+  (setq org-expose-emphasis-markers-type 'item)
+
+  ;; 3. turn on the mode
+  (add-hook 'org-mode-hook (lambda () (org-expose-emphasis-markers-mode t))))
 
 (use-package org-tidy
   :straight t
