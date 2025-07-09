@@ -207,3 +207,6 @@
   ;;             ("C-c C-r" . 'odin-run-project)
   ;;             ("C-c C-c" . 'odin-build-project)
   ;;             ("C-c C-t" . 'odin-test-project)))
+
+(use-package glsl-mode
+  :straight t)
