@@ -28,6 +28,7 @@
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
   "f d"   'dired
+  "f r"   'consult-recent-file
   "/"     'consult-ripgrep
   "f F"   'consult-fd
   "o -"   'dired-jump

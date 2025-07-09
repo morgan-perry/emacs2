@@ -18,6 +18,14 @@
 (setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
 
+(setq recentf-max-menu-items 50        ; keep 50 entries in the menu
+      recentf-max-saved-items 100      ; save up to 100 entries
+      recentf-auto-cleanup 'idle       ; clean up non-existent files when idle
+      recentf-exclude '("\\.gz\\'"     ; don’t record .gz files
+                         "/tmp/"        ; or files in /tmp/
+                         "/ssh:"))      ; or remote ssh:
+(add-hook 'after-init-hook #'recentf-mode)
+
 (defvar evil-want-keybinding nil
   "Set to nil because evil-collection is used for keybindings.")
 
@@ -202,11 +210,14 @@
   :general
   (:keymaps 'odin-mode-map
 	    :states 'normal
-	    "C-c C-r" #'odin-run-project))
-  ;; :bind (:map odin-mode-map
-  ;;             ("C-c C-r" . 'odin-run-project)
-  ;;             ("C-c C-c" . 'odin-build-project)
-  ;;             ("C-c C-t" . 'odin-test-project)))
+	    "C-b" #'odin-run-project))
 
 (use-package glsl-mode
   :straight t)
+
+(use-package vterm
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "o t" #'vterm))

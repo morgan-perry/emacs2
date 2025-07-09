@@ -92,6 +92,7 @@ This setups up straight
 
 (setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
+
 (setq recentf-max-menu-items 50        ; keep 50 entries in the menu
       recentf-max-saved-items 100      ; save up to 100 entries
       recentf-auto-cleanup 'idle       ; clean up non-existent files when idle
@@ -402,14 +403,13 @@ website.
   :general
   (:keymaps 'odin-mode-map
 	    :states 'normal
-	    "C-c C-r" #'odin-run-project))
-  ;; :bind (:map odin-mode-map
-  ;;             ("C-c C-r" . 'odin-run-project)
-  ;;             ("C-c C-c" . 'odin-build-project)
-  ;;             ("C-c C-t" . 'odin-test-project)))
+	    "C-b" #'odin-run-project))
 
 (use-package glsl-mode
-  :straight t)
+  :straight t
+  :hook (glsl-mode . display-line-numbers-mode))
+#+end_src
+
 ** Vterm
 
 #+begin_src emacs-lisp :tangle "init.el"
