@@ -99,6 +99,13 @@
   :after (org evil consult org-capture)
   :hook (org-mode . evil-org-mode))
 
+(setq org-capture-templates
+      `(("i" "Inbox" entry
+         (file+headline
+          ,(expand-file-name "notes.org" org-directory)
+          "Inbox")
+         "* [%<%Y-%m-%d %a>]  %?\n\n%i\n%a")))
+
 (defun org-add-my-extra-fonts ()
   "Add custom font-lock keywords for question emphasis '?text?'."
   (add-to-list 'org-font-lock-extra-keywords

@@ -846,6 +846,17 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
   :hook (org-mode . evil-org-mode))
 #+end_src
 
+*** Org Capture
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(setq org-capture-templates
+      `(("i" "Inbox" entry
+         (file+headline
+          ,(expand-file-name "notes.org" org-directory)
+          "Inbox")
+         "* [%<%Y-%m-%d %a>]  %?\n\n%i\n%a")))
+#+end_src
+
 *** Org Question Emphasis
 
 Adds a =?= character to the emphasis list so I can ask meta questions to
