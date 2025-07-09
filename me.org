@@ -92,6 +92,13 @@ This setups up straight
 
 (setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
+(setq recentf-max-menu-items 50        ; keep 50 entries in the menu
+      recentf-max-saved-items 100      ; save up to 100 entries
+      recentf-auto-cleanup 'idle       ; clean up non-existent files when idle
+      recentf-exclude '("\\.gz\\'"     ; don’t record .gz files
+                         "/tmp/"        ; or files in /tmp/
+                         "/ssh:"))      ; or remote ssh:
+(add-hook 'after-init-hook #'recentf-mode)
 #+end_src
 
 ** Evil want keybinding at the beninging
@@ -463,6 +470,7 @@ the highest priority.
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
   "f d"   'dired
+  "f r"   'consult-recent-file
   "/"     'consult-ripgrep
   "f F"   'consult-fd
   "o -"   'dired-jump
