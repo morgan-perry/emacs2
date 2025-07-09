@@ -384,6 +384,24 @@ website.
   :straight t)
 #+end_src
 
+** Odin Mode (TEMP)
+
+#+begin_src emacs-lisp :tangle "init.el"
+(straight-use-package
+ '(odin-mode :host nil :type git :repo "https://git.sr.ht/~mgmarlow/odin-mode"))
+
+(use-package odin-mode
+  :hook (odin-mode . display-line-numbers-mode)
+  :general
+  (:keymaps 'odin-mode-map
+	    :states 'normal
+	    "C-c C-r" #'odin-run-project))
+  ;; :bind (:map odin-mode-map
+  ;;             ("C-c C-r" . 'odin-run-project)
+  ;;             ("C-c C-c" . 'odin-build-project)
+  ;;             ("C-c C-t" . 'odin-test-project)))
+#+end_src
+
 * Modules
 ** Bindings
 This module sets up the global keybinding system using `general.el` and 'evil'
@@ -437,10 +455,7 @@ the highest priority.
 (cloutlu-leader-def
   "SPC"   '("M-x" . execute-extended-command)
   ;; Misc
-  "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-  "h m"   'consult-man
-  "h i"   'consult-info
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -457,6 +472,10 @@ the highest priority.
   "h m"     'describe-mode
   "h K"     'describe-keymap
   "h x"     'describe-command
+  
+  "h t"   'consult-theme
+  "h m"   'consult-man
+  "h i"   'consult-info
   ;; Windows
   "w"       (cons "windows" (make-sparse-keymap))
   "w TAB"   'alternate-window

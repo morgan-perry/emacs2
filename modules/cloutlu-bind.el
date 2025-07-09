@@ -23,10 +23,7 @@
 (cloutlu-leader-def
   "SPC"   '("M-x" . execute-extended-command)
   ;; Misc
-  "h t"   'consult-theme
   "t z"   'cloutlu/toggle-zen-mode
-  "h m"   'consult-man
-  "h i"   'consult-info
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -43,6 +40,10 @@
   "h m"     'describe-mode
   "h K"     'describe-keymap
   "h x"     'describe-command
+  
+  "h t"   'consult-theme
+  "h m"   'consult-man
+  "h i"   'consult-info
   ;; Windows
   "w"       (cons "windows" (make-sparse-keymap))
   "w TAB"   'alternate-window

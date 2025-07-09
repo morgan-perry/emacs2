@@ -193,3 +193,17 @@
 
 (use-package git-auto-commit-mode
   :straight t)
+
+(straight-use-package
+ '(odin-mode :host nil :type git :repo "https://git.sr.ht/~mgmarlow/odin-mode"))
+
+(use-package odin-mode
+  :hook (odin-mode . display-line-numbers-mode)
+  :general
+  (:keymaps 'odin-mode-map
+	    :states 'normal
+	    "C-c C-r" #'odin-run-project))
+  ;; :bind (:map odin-mode-map
+  ;;             ("C-c C-r" . 'odin-run-project)
+  ;;             ("C-c C-c" . 'odin-build-project)
+  ;;             ("C-c C-t" . 'odin-test-project)))
