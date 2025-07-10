@@ -213,7 +213,8 @@
 	    "C-b" #'odin-run-project))
 
 (use-package glsl-mode
-  :straight t)
+  :straight t
+  :hook (glsl-mode . display-line-numbers-mode))
 
 (use-package vterm
   :straight t
@@ -221,3 +222,8 @@
   (:states 'normal
 	   :prefix "SPC"
 	   "o t" #'vterm))
+
+(use-package kkp
+  :straight t
+  :config
+  (global-kkp-mode +1))
