@@ -22,7 +22,7 @@
   (setq fontaine-latest-state-file
 	(locate-user-emacs-file "fontaine-latest-state.eld"))
 
-  (setq frame-inhibit-implied-resize t) ;; required to not resize in GNOME
+  (setq frame-inhibit-implied-resize t) ;; required to not resize in GNOME, is default in next release
 
   (setq fontaine-presets
 	'((small

@@ -207,6 +207,7 @@
 
 (use-package odin-mode
   :hook (odin-mode . display-line-numbers-mode)
+  :hook (odin-mode . hs-minor-mode)
   :general
   (:keymaps 'odin-mode-map
 	    :states 'normal
