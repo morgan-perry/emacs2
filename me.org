@@ -400,10 +400,15 @@ website.
 (use-package odin-mode
   :hook (odin-mode . display-line-numbers-mode)
   :hook (odin-mode . hs-minor-mode)
+  :hook (odin-mode . eldoc-box-hover-mode)
   :general
   (:keymaps 'odin-mode-map
-	    :states 'normal
-	    "C-b" #'odin-run-project))
+	    :states '(normal insert)
+	    "C-b" #'odin-run-project
+	    "M-o" #'delete-other-windows))
+(use-package eldoc-box
+  :straight t
+  :after odin)
 
 (use-package glsl-mode
   :straight t
