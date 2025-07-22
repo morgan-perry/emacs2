@@ -209,6 +209,8 @@
   :hook (odin-mode . display-line-numbers-mode)
   :hook (odin-mode . hs-minor-mode)
   :hook (odin-mode . eldoc-box-hover-mode)
+  :hook (odin-mode . (lambda () (jinx-mode -1)))
+  :hook (odin-mode . eglot-ensure)
   :general
   (:keymaps 'odin-mode-map
 	    :states '(normal insert)
