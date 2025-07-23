@@ -1118,6 +1118,27 @@ Thank you Mr. Azozin
 	    "m l C" #'org-cliplink-capture))
 #+end_src
 
+*** Org anki
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-anki
+  :straight t
+  :general
+
+  (:keymaps 'org-mode-map
+	    :states '(normal visual)
+	    :prefix "SPC"
+	    "m a" (cons "org-anki" (make-sparse-keymap))
+	    "m a s" #'org-anki-sync-entry
+	    "m a S" #'org-anki-sync-all
+	    "m a d" #'org-anki-delete-entry ;; Deleting all should be manual
+	    "m a u" #'org-anki-update-dir
+	    "m a U" #'org-anki-update-all
+	    "m a b" #'org-anki-browse-entry
+	    "m a c" #'org-anki-cloze-dwim)
+  )
+#+end_src
+
 *** COMMENT Org Capture Server
 
 Taken from a [[https://gist.github.com/progfolio/af627354f87542879de3ddc30a31adc1][Github Gist]], 
