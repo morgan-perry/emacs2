@@ -3,17 +3,17 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("notes"
- (filename . "~/doc/share/org/notes.org")
+ (filename . "~/org/notes.org")
  (front-context-string . "* Inbox\n** [2025")
  (rear-context-string)
  (position . 1)
- (last-modified 26709 31254 371332 355000))
+ (last-modified 26760 8380 815808 953000))
 ("uni"
- (filename . "~/doc/share/org/uni.org")
+ (filename . "~/org/uni.org")
  (front-context-string . "#+startup: overv")
  (rear-context-string)
  (position . 1)
- (last-modified 26708 58933 663961 760000))
+ (last-modified 26760 8373 238698 473000))
 ("conf"
  (filename . "~/.config/emacs/me.org")
  (front-context-string . "#+startup: conte")

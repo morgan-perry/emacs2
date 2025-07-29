@@ -1,7 +1,7 @@
 (use-package org
   :ensure nil
   :init
-  (setq org-directory (expand-file-name "~/doc/share/org")
+  (setq org-directory (expand-file-name "~/org")
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
 	org-src-preserve-indentation t
@@ -189,9 +189,9 @@
         org-cite-follow-processor 'citar
         org-cite-activate-processor 'citar)
   :config
-  (setq citar-bibliography '("~/doc/share/org/ref.bib"))
-  (setq citar-library-paths '("~/doc/share/org/references/"))
-  (setq citar-notes-paths '("~/doc/share/org/roam"))
+  (setq citar-bibliography '("~/org/ref.bib"))
+  (setq citar-library-paths '("~/org/references/"))
+  (setq citar-notes-paths '("~/org/roam"))
   (defvar citar-indicator-files-icons
     (citar-indicator-create
      :symbol (nerd-icons-faicon
@@ -328,8 +328,9 @@
 
 (use-package org-anki
   :straight t
+  :config
+  (customize-set-variable 'org-anki-default-deck "my-target-deck")
   :general
-
   (:keymaps 'org-mode-map
 	    :states '(normal visual)
 	    :prefix "SPC"
