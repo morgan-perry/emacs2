@@ -465,7 +465,8 @@ the highest priority.
 (general-def '(normal visual)
   "C-u" #'evil-scroll-up
   "C-s" #'consult-line
-  "C-M-s" #'consult-line-multi)
+  "C-M-s" #'consult-line-multi
+  "-" #'save-buffer)
 #+end_src
 
 ***** Leader Bindings
@@ -713,6 +714,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 (use-package org
   :ensure nil
   :init
+  (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
   (setq org-directory (expand-file-name "~/org")
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7

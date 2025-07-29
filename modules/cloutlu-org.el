@@ -1,6 +1,7 @@
 (use-package org
   :ensure nil
   :init
+  (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
   (setq org-directory (expand-file-name "~/org")
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7

@@ -7,7 +7,8 @@
 (general-def '(normal visual)
   "C-u" #'evil-scroll-up
   "C-s" #'consult-line
-  "C-M-s" #'consult-line-multi)
+  "C-M-s" #'consult-line-multi
+  "-" #'save-buffer)
 
 (general-define-key
  :states '(normal motion)
