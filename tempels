@@ -27,6 +27,9 @@ org-mode
        n r
        n "#+end_figure")
 
+(eqn "\\( " r "\\)")
+(eqb "\\begin{equation}" n> r> n "\\end{equation}")
+
 ;; Local Variables:
 ;; mode: lisp-data
 ;; outline-regexp: "[a-z]"
