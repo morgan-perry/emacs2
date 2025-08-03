@@ -26,8 +26,7 @@ org-mode
        n "#+begin_figure"
        n r
        n "#+end_figure")
-
-(eqn "\\( " r "\\)")
+(eqn "\\( " r " \\)")
 (eqb "\\begin{equation}" n> r> n "\\end{equation}")
 
 ;; Local Variables:

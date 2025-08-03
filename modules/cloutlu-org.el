@@ -132,19 +132,19 @@
 
   ;; ;; Use dvisvgm to generate previews
   ;; ;; You don't need this, it's the default:
-  ;; (setq org-latex-preview-process-default 'dvisvgm)
+  (setq org-latex-preview-process-default 'dvisvgm)
   
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
   (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
 
   ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
-  ;; (setq org-latex-preview-auto-ignored-commands
-  ;;       '(next-line previous-line mwheel-scroll
-  ;;         scroll-up-command scroll-down-command))
+  (setq org-latex-preview-auto-ignored-commands
+        '(next-line previous-line mwheel-scroll
+          scroll-up-command scroll-down-command))
 
   ;; ;; Enable consistent equation numbering
-  ;; (setq org-latex-preview-numbered t)
+  (setq org-latex-preview-numbered t)
 
   ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
   ;; fragment and updates the preview in real-time as you edit it.
