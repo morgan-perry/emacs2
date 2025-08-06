@@ -25,6 +25,7 @@
   "SPC"   '("M-x" . execute-extended-command)
   ;; Misc
   "t z"   'cloutlu/toggle-zen-mode
+  "`" 'evil-buffer
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -60,7 +61,6 @@
   "w s"     'split-window-vertically
   ;; Buffers/Bookmarks
   "b"   (cons "buffers/bookmarks" (make-sparse-keymap))
-  "`"   'previous-buffer 
   "b b" 'consult-buffer
   "p b" 'consult-project-buffer
   "RET" 'consult-bookmark
