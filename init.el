@@ -215,6 +215,7 @@
   (:keymaps 'odin-mode-map
 	    :states '(normal insert)
 	    "C-b" #'odin-run-project
+	    "C-k" #'clang-format
 	    "M-o" #'delete-other-windows))
 (use-package eldoc-box
   :straight t
@@ -223,6 +224,21 @@
 (use-package glsl-mode
   :straight t
   :hook (glsl-mode . display-line-numbers-mode))
+
+(use-package cc-mode
+  :ensure nil  ; Built-in package
+  :hook
+  (c-mode . display-line-numbers-mode)
+  (c-mode . hs-minor-mode)
+  (c-mode . eldoc-box-hover-mode)
+  (c-mode . (lambda () (jinx-mode -1)))
+  (c-mode . eglot-ensure)
+  :general
+  (:keymaps 'c-mode-map
+	    :states '(normal insert)
+	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
+	    "C-k" #'eglot-format
+	    "M-o" #'delete-other-windows))
 
 (use-package vterm
   :straight t
