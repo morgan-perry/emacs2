@@ -8,3 +8,9 @@
 /auto-save-list/
 /.local/
 .org-id-locations
+/tramp
+/request/
+/recentf
+/projects
+/bin/
+/%backup%~
