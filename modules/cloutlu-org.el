@@ -27,7 +27,7 @@
               :pin nil)
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
-  (setq org-directory (expand-file-name "~/org")
+  (setq org-directory "C:/Users/moogly/org"
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
 	org-src-preserve-indentation t
@@ -136,7 +136,7 @@
   
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+  ;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
 
   ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
   (setq org-latex-preview-auto-ignored-commands

@@ -13,7 +13,8 @@
       inhibit-startup-screen t
       inhibit-x-resources t
       inhibit-startup-echo-area-message user-login-name ; read the docstring
-      inhibit-startup-buffer-menu t)
+      inhibit-startup-buffer-menu t
+      default-free-space-program nil) ; apparently makes ntfs drives faster for dired
 #+end_src
 
 ** Code to set frame parameters for like menu bar tool bar and scroll bar.
@@ -66,6 +67,10 @@
                   gc-cons-percentage 0.1
                   file-name-handler-alist prot-emacs--file-name-handler-alist
                   vc-handled-backends prot-emacs--vc-handled-backends)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+
 #+end_src
 
 * Init
@@ -364,7 +369,7 @@ The best git client :)
 	   "g g" #'magit))
 #+end_src
 
-** Spell Check (Jinx)
+** COMMENT Spell Check (Jinx)
 
 A spell checker that uses =libenchant=, I have both a personal
 dictionary this is symlinked to =libenchant='s default personal config
@@ -609,7 +614,7 @@ Most of this is using prot's  packages.
   (setq ef-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
-(load-theme 'doric-obsidian t)
+(load-theme 'ef-owl t)
 
 
 (use-package fontaine
@@ -762,7 +767,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
               :pin nil)
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
-  (setq org-directory (expand-file-name "~/org")
+  (setq org-directory "C:/Users/moogly/org"
 	org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
 	org-src-preserve-indentation t
@@ -871,7 +876,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
   
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+  ;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
 
   ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
   (setq org-latex-preview-auto-ignored-commands

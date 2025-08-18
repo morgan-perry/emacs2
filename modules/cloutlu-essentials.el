@@ -11,7 +11,7 @@
   (setq ef-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
-(load-theme 'doric-obsidian t)
+(load-theme 'ef-owl t)
 
 
 (use-package fontaine

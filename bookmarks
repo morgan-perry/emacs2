@@ -2,18 +2,24 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("notes"
- (filename . "~/org/notes.org")
+(("Downloads"
+ (filename . "c:/Users/moogly/Downloads/")
+ (front-context-string . ".\n  drwxrwxrwx  ")
+ (rear-context-string . "288 2025-08-15  ")
+ (position . 139)
+ (last-modified 26782 21830 966140 0))
+("notes"
+ (filename . "c:/Users/moogly/org/notes.org")
  (front-context-string . "* Inbox\n** [2025")
  (rear-context-string)
  (position . 1)
- (last-modified 26760 8380 815808 953000))
+ (last-modified 26779 32416 49266 0))
 ("uni"
- (filename . "~/org/uni.org")
+ (filename . "c:/Users/moogly/org/uni.org")
  (front-context-string . "#+startup: overv")
  (rear-context-string)
  (position . 1)
- (last-modified 26760 8373 238698 473000))
+ (last-modified 26779 32394 93743 0))
 ("conf"
  (filename . "~/.config/emacs/me.org")
  (front-context-string . "#+startup: conte")

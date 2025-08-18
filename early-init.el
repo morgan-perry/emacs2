@@ -8,7 +8,8 @@
       inhibit-startup-screen t
       inhibit-x-resources t
       inhibit-startup-echo-area-message user-login-name ; read the docstring
-      inhibit-startup-buffer-menu t)
+      inhibit-startup-buffer-menu t
+      default-free-space-program nil) ; apparently makes ntfs drives faster for dired
 
 (dolist (variable '(initial-frame-alist default-frame-alist))
   (set variable `((width . (text-pixels . 800))
@@ -54,3 +55,5 @@
                   gc-cons-percentage 0.1
                   file-name-handler-alist prot-emacs--file-name-handler-alist
                   vc-handled-backends prot-emacs--vc-handled-backends)))
+
+
