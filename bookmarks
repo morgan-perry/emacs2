@@ -15,11 +15,11 @@
  (position . 1)
  (last-modified 26779 32416 49266 0))
 ("uni"
- (filename . "c:/Users/moogly/org/uni.org")
+ (filename . "~/org/uni.org")
  (front-context-string . "#+startup: overv")
  (rear-context-string)
  (position . 1)
- (last-modified 26779 32394 93743 0))
+ (last-modified 26788 40721 944421 781000))
 ("conf"
  (filename . "~/.config/emacs/me.org")
  (front-context-string . "#+startup: conte")

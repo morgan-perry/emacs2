@@ -141,6 +141,22 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
   (doom-modeline-mode))
 #+end_src
 
+** Windows and Linux Macros
+
+Macros for certain vars that work worse or better on Windows or Linux. I always forget how to write this when I really need it.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(defmacro on-linux (&rest body)
+  "Execute BODY only when running on a Linux system."
+  `(when (eq system-type 'gnu/linux)
+     ,@body))
+
+(defmacro on-windows (&rest body)
+  "Execute BODY only when running on a Windows system."
+  `(when (eq system-type 'windows-nt)
+     ,@body))
+#+end_src
+
 ** Modules and custom libraries
 #+begin_src emacs-lisp :tangle "init.el"
 ;; This adds all elisp files from the modules and lisp folder
@@ -173,6 +189,7 @@ This loads the individual modules from the =modules= folder.
 (require 'cloutlu-c)
 (require 'cloutlu-eat)
 (require 'cloutlu-corfu)
+(require 'cloutlu-jinx)
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
@@ -579,8 +596,9 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
               :pin nil)
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
-  (setq org-directory "C:/Users/moogly/org"
-	org-archive-location (concat org-directory "/archive.org::")
+  (on-linux (setq org-directory (expand-file-name "~/org")))
+  (on-windows (setq org-directory "C:/Users/moogly/org"))
+  (setq org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
 	org-src-preserve-indentation t
 	org-capture-bookmark nil)

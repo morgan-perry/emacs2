@@ -51,6 +51,16 @@
   :config
   (doom-modeline-mode))
 
+(defmacro on-linux (&rest body)
+  "Execute BODY only when running on a Linux system."
+  `(when (eq system-type 'gnu/linux)
+     ,@body))
+
+(defmacro on-windows (&rest body)
+  "Execute BODY only when running on a Windows system."
+  `(when (eq system-type 'windows-nt)
+     ,@body))
+
 ;; This adds all elisp files from the modules and lisp folder
 (mapc
  (lambda (string)
@@ -72,6 +82,7 @@
 (require 'cloutlu-c)
 (require 'cloutlu-eat)
 (require 'cloutlu-corfu)
+(require 'cloutlu-jinx)
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))

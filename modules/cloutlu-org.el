@@ -27,8 +27,9 @@
               :pin nil)
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
-  (setq org-directory "C:/Users/moogly/org"
-	org-archive-location (concat org-directory "/archive.org::")
+  (on-linux (setq org-directory (expand-file-name "~/org")))
+  (on-windows (setq org-directory "C:/Users/moogly/org"))
+  (setq org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
 	org-src-preserve-indentation t
 	org-capture-bookmark nil)
