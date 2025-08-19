@@ -131,4 +131,7 @@
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
 
+(use-package consult-eglot
+  :straight t)
+
 (provide 'cloutlu-vertico)

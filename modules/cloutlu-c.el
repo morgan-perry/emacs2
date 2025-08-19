@@ -11,6 +11,7 @@
 	    :states '(normal insert)
 	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
 	    "C-k" #'eglot-format
-	    "M-o" #'delete-other-windows))
+	    "M-o" #'delete-other-windows
+	    "s i" #'consult-eglot-symbols))
 
 (provide 'cloutlu-c)
