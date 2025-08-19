@@ -81,6 +81,9 @@
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-respect-visual-line-mode t)
   (setq evil-move-line-on-visual-line t)
+  (setq evil-want-fine-undo t)
+  (setq undo-limit 80000000)
+  (setq evil-undo-system 'undo-redo)
   :config
   (evil-mode 1))
 

@@ -386,6 +386,9 @@ the highest priority.
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-respect-visual-line-mode t)
   (setq evil-move-line-on-visual-line t)
+  (setq evil-want-fine-undo t)
+  (setq undo-limit 80000000)
+  (setq evil-undo-system 'undo-redo)
   :config
   (evil-mode 1))
 
@@ -525,6 +528,7 @@ Most of this is using prot's  packages.
 *** Settings for common operations
 
 I mean yeah dude I want to delete just the folder not anything inside it that makes sense!
+
 #+begin_src emacs-lisp :tangle "modules/cloutlu-dired.el" :mkdirp yes
   ;;; Dired file manager and prot-dired.el extras (not actually lol)
 (use-package dired
@@ -537,6 +541,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 #+end_src
 
 *** Provide the module
+
 #+begin_src emacs-lisp :tangle "modules/cloutlu-dired.el" :mkdirp yes
 (provide 'cloutlu-dired)
 #+end_src
