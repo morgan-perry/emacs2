@@ -52,6 +52,7 @@
   (doom-modeline-mode))
 
 (use-package hl-todo
+  :straight t
   :hook (prog-mode . hl-todo-mode)
   :config
   (setq hl-todo-highlight-punctuation ":"

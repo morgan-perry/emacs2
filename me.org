@@ -141,6 +141,7 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
   (doom-modeline-mode))
 
 (use-package hl-todo
+  :straight t
   :hook (prog-mode . hl-todo-mode)
   :config
   (setq hl-todo-highlight-punctuation ":"
