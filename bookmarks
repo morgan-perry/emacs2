@@ -9,11 +9,11 @@
  (position . 139)
  (last-modified 26782 21830 966140 0))
 ("notes"
- (filename . "c:/Users/moogly/org/notes.org")
+ (filename . "~/org/notes.org")
  (front-context-string . "* Inbox\n** [2025")
  (rear-context-string)
  (position . 1)
- (last-modified 26779 32416 49266 0))
+ (last-modified 26788 42925 613205 581000))
 ("uni"
  (filename . "~/org/uni.org")
  (front-context-string . "#+startup: overv")

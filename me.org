@@ -118,6 +118,7 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
 ** TODO idk yet
 
 #+begin_src emacs-lisp :tangle "init.el"
+
 (global-visual-line-mode t)
 (use-package multiple-cursors
   :straight t)
@@ -139,7 +140,11 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
   :straight t
   :config
   (doom-modeline-mode))
+#+end_src
 
+** Flycheck and hl-todo
+
+#+begin_src emacs-lisp :tangle "init.el"
 (use-package hl-todo
   :straight t
   :hook (prog-mode . hl-todo-mode)
@@ -148,11 +153,22 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
         hl-todo-keyword-faces
         `(("TODO"       warning bold)
           ("FIXME"      error bold)
+	  ("XXX"        error bold)
           ("HACK"       font-lock-constant-face bold)
           ("REVIEW"     font-lock-keyword-face bold)
           ("NOTE"       success bold)
           ("DEPRECATED" font-lock-doc-face bold))))
-  #+end_src
+
+(use-package flycheck
+  :straight t
+  :hook (prog-mode . hl-todo-mode))
+
+(use-package consult-flycheck
+  :straight t)
+
+(use-package consult-todo
+  :straight t)
+#+end_src
 
 ** Windows and Linux Macros
 
@@ -331,7 +347,10 @@ the highest priority.
   "C-u" #'evil-scroll-up
   "C-s" #'consult-line
   "C-M-s" #'consult-line-multi
-  "-" #'save-buffer)
+  "-" #'save-buffer
+  ;; REVIEW redo thsi
+  "] d" #'flycheck-next-error
+  "[ d" #'flycheck-previous-error)
 #+end_src
 
 ***** Leader Bindings
@@ -404,6 +423,8 @@ the highest priority.
   "s i" 'consult-outline
   "s g" 'consult-git-grep
   "s l" 'consult-focus-lines
+  "s t" 'consult-todo
+  "s f" 'consult-flycheck
   )
 #+end_src
 
@@ -1267,9 +1288,6 @@ for each.
   ;; You may want to use `embark-prefix-help-command' or which-key instead.
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
-
-(use-package consult-eglot
-  :straight t)
 #+end_src
 
 *** Provide the Module
@@ -1345,12 +1363,16 @@ for each.
   (c-mode . eldoc-box-hover-mode)
   :hook (odin-mode . (lambda () (when (featurep 'jinx) (require 'cloutlu-tempel))))
   (c-mode . eglot-ensure)
+  (c-mode . flycheck-mode)
   :general
   (:keymaps 'c-mode-map
 	    :states '(normal insert)
 	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
 	    "C-k" #'eglot-format
-	    "M-o" #'delete-other-windows))
+	    "M-o" #'delete-other-windows
+	    "M-O" #'split-window-horizontally))
+	    ;; :prefix "SPC"
+	    ;; "s i" #'consult-eglot-symbols))
 #+end_src
 
 *** Provide the modules

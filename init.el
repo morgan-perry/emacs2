@@ -59,10 +59,21 @@
         hl-todo-keyword-faces
         `(("TODO"       warning bold)
           ("FIXME"      error bold)
+	  ("XXX"        error bold)
           ("HACK"       font-lock-constant-face bold)
           ("REVIEW"     font-lock-keyword-face bold)
           ("NOTE"       success bold)
           ("DEPRECATED" font-lock-doc-face bold))))
+
+(use-package flycheck
+  :straight t
+  :hook (prog-mode . hl-todo-mode))
+
+(use-package consult-flycheck
+  :straight t)
+
+(use-package consult-todo
+  :straight t)
 
 (defmacro on-linux (&rest body)
   "Execute BODY only when running on a Linux system."

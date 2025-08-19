@@ -8,7 +8,9 @@
   "C-u" #'evil-scroll-up
   "C-s" #'consult-line
   "C-M-s" #'consult-line-multi
-  "-" #'save-buffer)
+  "-" #'save-buffer
+  "] d" #'flycheck-next-error
+  "[ d" #'flycheck-previous-error)
 
 (general-define-key
  :states '(normal motion)
@@ -72,6 +74,8 @@
   "s i" 'consult-outline
   "s g" 'consult-git-grep
   "s l" 'consult-focus-lines
+  "s t" 'consult-todo
+  "s f" 'consult-flycheck
   )
 
 (use-package evil
