@@ -168,6 +168,11 @@ This loads the individual modules from the =modules= folder.
 (require 'cloutlu-which-key)
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
+(require 'cloutlu-tempel)
+(require 'cloutlu-odin)
+(require 'cloutlu-c)
+(require 'cloutlu-eat)
+(require 'cloutlu-corfu)
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
@@ -235,127 +240,6 @@ This loads the individual modules from the =modules= folder.
                'face 'help-key-binding)))
 #+end_src
 
-** tempel
-
-A basic templating system, this shouldn't replace yasnippet but I have
-no need to even use that thing in the first place, this is more than
-enough.
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package tempel
-  :straight t
-  :custom
-  (tempel-path (concat user-emacs-directory "tempels"))
-  :init
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
-    (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
-  :general
-  ("M-*" #'tempel-insert)
-  (:states '(normal insert emacs)
-	   "M-+" #'tempel-complete))
-#+end_src
-
-*** Tempels
-**** org-mode
-#+begin_src lisp-data :tangle "tempels"
-org-mode
-
-(caption "#+caption: ")
-(drawer ":" p ":" n r ":end:")
-(begin "#+begin_" (s name) n> r> n "#+end_" name)
-(quote "#+begin_quote" n> r> n "#+end_quote")
-(sidenote "#+begin_sidenote" n> r> n "#+end_sidenote")
-(marginnote "#+begin_marginnote" n> r> n "#+end_marginnote")
-(example "#+begin_example" n> r> n "#+end_example")
-(center "#+begin_center" n> r> n "#+end_center")
-(ascii "#+begin_export ascii" n> r> n "#+end_export")
-(html "#+begin_export html" n> r> n "#+end_export")
-(latex "#+begin_export latex" n> r> n "#+end_export")
-(comment "#+begin_comment" n> r> n "#+end_comment")
-(verse "#+begin_verse" n> r> n "#+end_verse")
-(src "#+begin_src " q n r n "#+end_src")
-(<s "#+begin_src " r n "#+end_src")
-(gnuplot "#+begin_src gnuplot :var data=" (p "table") " :file " (p "plot.png") n r n "#+end_src" :post (org-edit-src-code))
-(elisp "#+begin_src emacs-lisp" n r n "#+end_src" :post (org-edit-src-code))
-(dafny "src_dafny{" r "}")
-(inlsrc "src_" p "{" q "}")
-(title "#+title: " p n "#+author: Morgan Perry" n "#+language: en")
-(quilt "#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>"
-       n "#+attr_html: :class quiltish"
-       n "#+caption: " p
-       n "#+begin_figure"
-       n r
-       n "#+end_figure")
-(eqn "\\( " r " \\)")
-(eqb "\\begin{equation}" n> r> n "\\end{equation}")
-#+end_src
-
-**** Set tempels file metadata
-
-#+begin_src lisp-data :tangle "tempels"
-;; Local Variables:
-;; mode: lisp-data
-;; outline-regexp: "[a-z]"
-;; End:
-#+end_src
-** Corfu
-
-This is the completion popup along with capf functionality provided
-from cape.
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package corfu
-  :straight t
-  ;; Optional customizations
-  :config
-  (setq corfu-auto t
-        corfu-auto-delay 0.24
-        corfu-auto-prefix 2
-        global-corfu-modes
-        '((not erc-mode
-               circe-mode
-               help-mode
-               gud-mode
-               vterm-mode)
-          t)
-        corfu-cycle t
-        corfu-preselect 'prompt
-        corfu-count 16
-        corfu-max-width 120
-        corfu-on-exact-match nil
-        ;; corfu-quit-at-boundary (if (or (modulep! :completion vertico)
-        ;;                                (modulep! +orderless))
-        ;;                            'separator t)
-        corfu-quit-no-match corfu-quit-at-boundary
-        tab-always-indent 'complete
-
-	text-mode-ispell-word-completion nil
-
-	read-extended-command-predicate #'command-completion-default-include-p)
-  :init
-  (global-corfu-mode)
-  ;; Enable optional extension modes:
-  (corfu-history-mode)
-  (corfu-popupinfo-mode))
-
-(use-package cape
-  :straight t
-  :init
-  (add-hook! 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook! 'completion-at-point-functions #'cape-file)
-  (add-hook! 'completion-at-point-functions #'cape-elisp-block))
-#+end_src
-
 ** Magit
 
 The best git client :)
@@ -369,28 +253,6 @@ The best git client :)
 	   "g g" #'magit))
 #+end_src
 
-** COMMENT Spell Check (Jinx)
-
-A spell checker that uses =libenchant=, I have both a personal
-dictionary this is symlinked to =libenchant='s default personal config
-(by default its =~/.config/enchant/en_AU.dic=) and also a larger
-Australian =aspell= dictionary that matches the defaults of =en_US-large=
-that appears in most distro's repos. It was generated from [[http://app.aspell.net/create?defaults=en_AU-large][this]]
-website.
-
-#+begin_src emacs-lisp :tangle "init.el"
-;; Spell Checker
-(use-package jinx
-  :straight t
-  :hook (emacs-startup . global-jinx-mode)
-  :general
-  ("M-$" #'jinx-correct)
-  (:state 'normal
-	  "C-;" #'jinx-correct)
-  :config
-  (setq jinx-languages "en-custom")) ;; From a custom dictionary
-#+end_src
-
 ** Git auto commit mode
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -398,64 +260,9 @@ website.
   :straight t)
 #+end_src
 
-** Odin Mode (TEMP)
-
-#+begin_src emacs-lisp :tangle "init.el"
-(straight-use-package
- '(odin-mode :host nil :type git :repo "https://git.sr.ht/~mgmarlow/odin-mode"))
-
-(use-package odin-mode
-  :hook (odin-mode . display-line-numbers-mode)
-  :hook (odin-mode . hs-minor-mode)
-  :hook (odin-mode . eldoc-box-hover-mode)
-  :hook (odin-mode . (lambda () (jinx-mode -1)))
-  :hook (odin-mode . eglot-ensure)
-  :general
-  (:keymaps 'odin-mode-map
-	    :states '(normal insert)
-	    "C-b" #'odin-run-project
-	    "C-k" #'clang-format
-	    "M-o" #'delete-other-windows))
-(use-package eldoc-box
-  :straight t
-  :after odin)
-
-(use-package glsl-mode
-  :straight t
-  :hook (glsl-mode . display-line-numbers-mode))
-#+end_src
-
-** C Mode
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package cc-mode
-  :ensure nil  ; Built-in package
-  :hook
-  (c-mode . display-line-numbers-mode)
-  (c-mode . hs-minor-mode)
-  (c-mode . eldoc-box-hover-mode)
-  (c-mode . (lambda () (jinx-mode -1)))
-  (c-mode . eglot-ensure)
-  :general
-  (:keymaps 'c-mode-map
-	    :states '(normal insert)
-	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
-	    "C-k" #'eglot-format
-	    "M-o" #'delete-other-windows))
-#+end_src
-
-** Vterm
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package vterm
-  :straight t
-  :general
-  (:states 'normal
-	   :prefix "SPC"
-	   "o t" #'vterm))
-#+end_src
-
 ** KKP
+
+Support for the Kitty Keyboard Protocol. This is useful for terminals that support it (ghostty and wezterm included) as I often have emacs in a seperate tab/tmux pane for magit and note taking in org mode.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package kkp
@@ -1451,6 +1258,263 @@ for each.
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-which-key.el" :mkdirp yes
 (provide 'cloutlu-which-key)
+#+end_src
+
+** Odin Mode
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-odin.el" :mkdirp yes
+(straight-use-package
+ '(odin-mode :host nil :type git :repo "https://git.sr.ht/~mgmarlow/odin-mode"))
+
+(use-package odin-mode
+  :hook (odin-mode . display-line-numbers-mode)
+  :hook (odin-mode . hs-minor-mode)
+  :hook (odin-mode . eldoc-box-hover-mode)
+  :hook (odin-mode . (lambda () (when (featurep 'jinx) (require 'cloutlu-tempel))))
+  :hook (odin-mode . eglot-ensure)
+  :general
+  (:keymaps 'odin-mode-map
+	    :states '(normal insert)
+	    "C-b" #'odin-run-project
+	    "C-k" #'clang-format
+	    "M-o" #'delete-other-windows))
+
+(use-package eldoc-box
+  :straight t
+  :after odin)
+
+(use-package glsl-mode
+  :straight t
+  :hook (glsl-mode . display-line-numbers-mode))
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-odin.el" :mkdirp yes
+(provide 'cloutlu-odin)
+#+end_src
+
+** C Mode
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-c.el" :mkdirp yes
+(use-package cc-mode
+  :ensure nil  ; Built-in package
+  :hook
+  (c-mode . display-line-numbers-mode)
+  (c-mode . hs-minor-mode)
+  (c-mode . eldoc-box-hover-mode)
+  :hook (odin-mode . (lambda () (when (featurep 'jinx) (require 'cloutlu-tempel))))
+  (c-mode . eglot-ensure)
+  :general
+  (:keymaps 'c-mode-map
+	    :states '(normal insert)
+	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
+	    "C-k" #'eglot-format
+	    "M-o" #'delete-other-windows))
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-c.el" :mkdirp yes
+(provide 'cloutlu-c)
+#+end_src
+
+** EAT
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-eat.el" :mkdirp yes
+(use-package eat
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "o t" #'eat))
+#+end_src
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-eat.el" :mkdirp yes
+(provide 'cloutlu-eat)
+#+end_src
+
+** Vterm
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vterm.el" :mkdirp yes
+(use-package vterm
+  :straight t
+  :general
+  (:states 'normal
+	   :prefix "SPC"
+	   "o t" #'vterm))
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-vterm.el" :mkdirp yes
+(provide 'cloutlu-vterm)
+#+end_src
+
+** tempel
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-tempel.el" :mkdirp yes
+(use-package tempel
+  :straight t
+  :custom
+  (tempel-path (concat user-emacs-directory "tempels"))
+  :init
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+  :general
+  ("M-*" #'tempel-insert)
+  (:states '(normal insert emacs)
+	   "M-+" #'tempel-complete))
+#+end_src
+
+*** Tempels
+**** org-mode
+#+begin_src lisp-data :tangle "tempels"
+org-mode
+
+(caption "#+caption: ")
+(drawer ":" p ":" n r ":end:")
+(begin "#+begin_" (s name) n> r> n "#+end_" name)
+(quote "#+begin_quote" n> r> n "#+end_quote")
+(sidenote "#+begin_sidenote" n> r> n "#+end_sidenote")
+(marginnote "#+begin_marginnote" n> r> n "#+end_marginnote")
+(example "#+begin_example" n> r> n "#+end_example")
+(center "#+begin_center" n> r> n "#+end_center")
+(ascii "#+begin_export ascii" n> r> n "#+end_export")
+(html "#+begin_export html" n> r> n "#+end_export")
+(latex "#+begin_export latex" n> r> n "#+end_export")
+(comment "#+begin_comment" n> r> n "#+end_comment")
+(verse "#+begin_verse" n> r> n "#+end_verse")
+(src "#+begin_src " q n r n "#+end_src")
+(<s "#+begin_src " r n "#+end_src")
+(gnuplot "#+begin_src gnuplot :var data=" (p "table") " :file " (p "plot.png") n r n "#+end_src" :post (org-edit-src-code))
+(elisp "#+begin_src emacs-lisp" n r n "#+end_src" :post (org-edit-src-code))
+(dafny "src_dafny{" r "}")
+(inlsrc "src_" p "{" q "}")
+(title "#+title: " p n "#+author: Morgan Perry" n "#+language: en")
+(quilt "#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>"
+       n "#+attr_html: :class quiltish"
+       n "#+caption: " p
+       n "#+begin_figure"
+       n r
+       n "#+end_figure")
+(eqn "\\( " r " \\)")
+(eqb "\\begin{equation}" n> r> n "\\end{equation}")
+#+end_src
+
+**** Set tempels file metadata
+
+#+begin_src lisp-data :tangle "tempels"
+;; Local Variables:
+;; mode: lisp-data
+;; outline-regexp: "[a-z]"
+;; End:
+#+end_src
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-tempel.el" :mkdirp yes
+(provide 'cloutlu-tempel)
+#+end_src
+
+** Spell Check (Jinx)
+
+A spell checker that uses =libenchant=, I have both a personal
+dictionary this is symlinked to =libenchant='s default personal config
+(by default its =~/.config/enchant/en_AU.dic=) and also a larger
+Australian =aspell= dictionary that matches the defaults of =en_US-large=
+that appears in most distro's repos. It was generated from [[http://app.aspell.net/create?defaults=en_AU-large][this]]
+website.
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-jinx.el" :mkdirp yes
+;; Spell Checker
+(use-package jinx
+  :straight t
+  :hook (emacs-startup . global-jinx-mode)
+  :general
+  ("M-$" #'jinx-correct)
+  (:state 'normal
+	  "C-;" #'jinx-correct)
+  :config
+  (setq jinx-languages "en-custom")) ;; From a custom dictionary
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-jinx.el" :mkdirp yes
+(provide 'cloutlu-jinx)
+#+end_src
+
+** Corfu
+
+This is the completion popup along with capf functionality provided
+from cape.
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-corfu.el" :mkdirp yes
+(use-package corfu
+  :straight t
+  ;; Optional customizations
+  :config
+  (setq corfu-auto t
+        corfu-auto-delay 0.24
+        corfu-auto-prefix 2
+        global-corfu-modes
+        '((not erc-mode
+               circe-mode
+               help-mode
+               gud-mode
+               vterm-mode)
+          t)
+        corfu-cycle t
+        corfu-preselect 'prompt
+        corfu-count 16
+        corfu-max-width 120
+        corfu-on-exact-match nil
+        ;; corfu-quit-at-boundary (if (or (modulep! :completion vertico)
+        ;;                                (modulep! +orderless))
+        ;;                            'separator t)
+        corfu-quit-no-match corfu-quit-at-boundary
+        tab-always-indent 'complete
+
+	text-mode-ispell-word-completion nil
+
+	read-extended-command-predicate #'command-completion-default-include-p)
+  :init
+  (global-corfu-mode)
+  ;; Enable optional extension modes:
+  (corfu-history-mode)
+  (corfu-popupinfo-mode))
+#+end_src
+
+*** Cape
+
+I'm pretty sure this is the actual code for compleition, but I can't really remember. 
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-corfu.el" :mkdirp yes
+(use-package cape
+  :straight t
+  :init
+  (add-hook! 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook! 'completion-at-point-functions #'cape-file)
+  (add-hook! 'completion-at-point-functions #'cape-elisp-block))
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-corfu.el" :mkdirp yes
+(provide 'cloutlu-corfu)
 #+end_src
 
 ** Zen Mode

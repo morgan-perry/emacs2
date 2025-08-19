@@ -67,6 +67,11 @@
 (require 'cloutlu-which-key)
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
+(require 'cloutlu-tempel)
+(require 'cloutlu-odin)
+(require 'cloutlu-c)
+(require 'cloutlu-eat)
+(require 'cloutlu-corfu)
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
@@ -118,69 +123,6 @@
                (substitute-command-keys "\\<lisp-interaction-mode-map>\\[eval-print-last-sexp]")
                'face 'help-key-binding)))
 
-(use-package tempel
-  :straight t
-  :custom
-  (tempel-path (concat user-emacs-directory "tempels"))
-  :init
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
-    (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
-  :general
-  ("M-*" #'tempel-insert)
-  (:states '(normal insert emacs)
-	   "M-+" #'tempel-complete))
-
-(use-package corfu
-  :straight t
-  ;; Optional customizations
-  :config
-  (setq corfu-auto t
-        corfu-auto-delay 0.24
-        corfu-auto-prefix 2
-        global-corfu-modes
-        '((not erc-mode
-               circe-mode
-               help-mode
-               gud-mode
-               vterm-mode)
-          t)
-        corfu-cycle t
-        corfu-preselect 'prompt
-        corfu-count 16
-        corfu-max-width 120
-        corfu-on-exact-match nil
-        ;; corfu-quit-at-boundary (if (or (modulep! :completion vertico)
-        ;;                                (modulep! +orderless))
-        ;;                            'separator t)
-        corfu-quit-no-match corfu-quit-at-boundary
-        tab-always-indent 'complete
-
-	text-mode-ispell-word-completion nil
-
-	read-extended-command-predicate #'command-completion-default-include-p)
-  :init
-  (global-corfu-mode)
-  ;; Enable optional extension modes:
-  (corfu-history-mode)
-  (corfu-popupinfo-mode))
-
-(use-package cape
-  :straight t
-  :init
-  (add-hook! 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook! 'completion-at-point-functions #'cape-file)
-  (add-hook! 'completion-at-point-functions #'cape-elisp-block))
-
 (use-package magit
   :straight t
   :general
@@ -190,51 +132,6 @@
 
 (use-package git-auto-commit-mode
   :straight t)
-
-(straight-use-package
- '(odin-mode :host nil :type git :repo "https://git.sr.ht/~mgmarlow/odin-mode"))
-
-(use-package odin-mode
-  :hook (odin-mode . display-line-numbers-mode)
-  :hook (odin-mode . hs-minor-mode)
-  :hook (odin-mode . eldoc-box-hover-mode)
-  :hook (odin-mode . (lambda () (jinx-mode -1)))
-  :hook (odin-mode . eglot-ensure)
-  :general
-  (:keymaps 'odin-mode-map
-	    :states '(normal insert)
-	    "C-b" #'odin-run-project
-	    "C-k" #'clang-format
-	    "M-o" #'delete-other-windows))
-(use-package eldoc-box
-  :straight t
-  :after odin)
-
-(use-package glsl-mode
-  :straight t
-  :hook (glsl-mode . display-line-numbers-mode))
-
-(use-package cc-mode
-  :ensure nil  ; Built-in package
-  :hook
-  (c-mode . display-line-numbers-mode)
-  (c-mode . hs-minor-mode)
-  (c-mode . eldoc-box-hover-mode)
-  (c-mode . (lambda () (jinx-mode -1)))
-  (c-mode . eglot-ensure)
-  :general
-  (:keymaps 'c-mode-map
-	    :states '(normal insert)
-	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
-	    "C-k" #'eglot-format
-	    "M-o" #'delete-other-windows))
-
-(use-package vterm
-  :straight t
-  :general
-  (:states 'normal
-	   :prefix "SPC"
-	   "o t" #'vterm))
 
 (use-package kkp
   :straight t
