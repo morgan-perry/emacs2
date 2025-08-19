@@ -83,6 +83,7 @@
 (require 'cloutlu-eat)
 (require 'cloutlu-corfu)
 (require 'cloutlu-jinx)
+(on-linux (require 'cloutlu-pdf))
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))

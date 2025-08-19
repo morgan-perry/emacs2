@@ -190,6 +190,7 @@ This loads the individual modules from the =modules= folder.
 (require 'cloutlu-eat)
 (require 'cloutlu-corfu)
 (require 'cloutlu-jinx)
+(on-linux (require 'cloutlu-pdf))
 (require 'cloutlu-org)
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
@@ -1538,6 +1539,19 @@ I'm pretty sure this is the actual code for compleition, but I can't really reme
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-corfu.el" :mkdirp yes
 (provide 'cloutlu-corfu)
+#+end_src
+
+** PDF Tools
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-pdf.el" :mkdirp yes
+(use-package pdf-tools
+  :straight t)
+#+end_src
+
+*** Provide the modules
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-pdf.el" :mkdirp yes
+(provide 'cloutlu-pdf)
 #+end_src
 
 ** Zen Mode
