@@ -9,6 +9,7 @@
   "C-s" #'consult-line
   "C-M-s" #'consult-line-multi
   "-" #'save-buffer
+  ;; REVIEW redo thsi
   "] d" #'flycheck-next-error
   "[ d" #'flycheck-previous-error)
 

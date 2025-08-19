@@ -173,3 +173,40 @@
   :straight t
   :config
   (global-kkp-mode +1))
+
+;; Custom macro to define system-specific bookmarks
+(defmacro define-system-bookmarks (system &rest bookmarks)
+  "Define bookmarks for SYSTEM ('gnu/linux or 'windows-nt) with NAMES and PATHS.
+Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and logs them."
+  `(when (eq system-type ,system)
+     ,@(mapcar
+        (lambda (bookmark)
+          (let ((name (car bookmark))
+                (path (cadr bookmark)))
+            `(let ((expanded-path (expand-file-name ,path)))
+               (if (file-exists-p expanded-path)
+                   (bookmark-store ,name `((filename . ,expanded-path)) nil)
+                 (message "Skipping bookmark '%s': File '%s' does not exist" ,name ,path)))))
+        bookmarks)))
+
+;; Ensure bookmark package is loaded
+(use-package bookmark
+  :straight t
+  :config
+  ;; Enable bookmark persistence
+  (setq bookmark-save-flag 1) ;; Save bookmarks after each change
+  ;; Use system-specific bookmark files to avoid conflicts
+  (on-linux
+   (setq bookmark-default-file (concat startup--xdg-config-home-emacs "bookmarks-linux.el")))
+  (on-windows
+   (setq bookmark-default-file "C:/Users/moogly/.config/emacs/bookmarks-windows.el"))
+  ;; Define system-specific bookmarks
+  (define-system-bookmarks 'gnu/linux
+    ("notes" "~/org/notes.org")
+    ("uni" "~/org/uni.org")
+    ("conf" "~/.config/emacs/me.org"))
+  (define-system-bookmarks 'windows-nt
+    ("notes" "C:/Users/moogly/org/notes.org")
+    ("uni" "C:/Users/moogly/org/uni.org")
+    ("conf" "C:/Users/moogly/.config/emacs/me.org")
+    ("Downloads" "C:/Users/moogly/Downloads/")))
