@@ -106,7 +106,7 @@
 (require 'cloutlu-c)
 (require 'cloutlu-eat)
 (require 'cloutlu-corfu)
-(require 'cloutlu-jinx)
+(on-linux (require 'cloutlu-jinx))
 (on-linux (require 'cloutlu-pdf))
 (require 'cloutlu-org)
 ;; (when (window-system)
@@ -199,7 +199,7 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
   (on-linux
    (setq bookmark-default-file (concat startup--xdg-config-home-emacs "bookmarks-linux.el")))
   (on-windows
-   (setq bookmark-default-file "C:/Users/moogly/.config/emacs/bookmarks-windows.el"))
+   (setq bookmark-default-file "~/.config/emacs/bookmarks-windows.el"))
   ;; Define system-specific bookmarks
   (define-system-bookmarks 'gnu/linux
     ("notes" "~/org/notes.org")
@@ -208,5 +208,5 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
   (define-system-bookmarks 'windows-nt
     ("notes" "C:/Users/moogly/org/notes.org")
     ("uni" "C:/Users/moogly/org/uni.org")
-    ("conf" "C:/Users/moogly/.config/emacs/me.org")
+    ("conf" "~/.config/emacs/me.org")
     ("Downloads" "C:/Users/moogly/Downloads/")))
