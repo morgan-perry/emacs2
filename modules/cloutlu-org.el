@@ -383,22 +383,4 @@
 	    "m l c" #'org-cliplink
 	    "m l C" #'org-cliplink-capture))
 
-(use-package org-anki
-  :straight t
-  :config
-  (customize-set-variable 'org-anki-default-deck "my-target-deck")
-  :general
-  (:keymaps 'org-mode-map
-	    :states '(normal visual)
-	    :prefix "SPC"
-	    "m a" (cons "org-anki" (make-sparse-keymap))
-	    "m a s" #'org-anki-sync-entry
-	    "m a S" #'org-anki-sync-all
-	    "m a d" #'org-anki-delete-entry ;; Deleting all should be manual
-	    "m a u" #'org-anki-update-dir
-	    "m a U" #'org-anki-update-all
-	    "m a b" #'org-anki-browse-entry
-	    "m a c" #'org-anki-cloze-dwim)
-  )
-
 (provide 'cloutlu-org)

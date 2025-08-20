@@ -1108,7 +1108,7 @@ Thank you Mr. Azozin
 	    "m l C" #'org-cliplink-capture))
 #+end_src
 
-*** Org anki
+*** COMMENT Org anki
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-anki
