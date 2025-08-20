@@ -29,6 +29,7 @@
   ;; Misc
   "t z"   'cloutlu/toggle-zen-mode
   "`" 'evil-buffer
+  "X" 'org-capture
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file

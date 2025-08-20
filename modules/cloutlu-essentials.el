@@ -45,7 +45,7 @@
            ;; <https://protesilaos.com/emacs/fontaine>.
            :default-family "Aporetic Sans Mono"
            :default-weight regular
-           :default-height 100
+           :default-height 115
 
            :fixed-pitch-family nil ; falls back to :default-family
            :fixed-pitch-weight nil ; falls back to :default-weight

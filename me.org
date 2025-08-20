@@ -418,6 +418,7 @@ the highest priority.
   ;; Misc
   "t z"   'cloutlu/toggle-zen-mode
   "`" 'evil-buffer
+  "X" 'org-capture
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -551,7 +552,7 @@ Most of this is using prot's  packages.
            ;; <https://protesilaos.com/emacs/fontaine>.
            :default-family "Aporetic Sans Mono"
            :default-weight regular
-           :default-height 100
+           :default-height 115
 
            :fixed-pitch-family nil ; falls back to :default-family
            :fixed-pitch-weight nil ; falls back to :default-weight
@@ -1424,6 +1425,8 @@ for each.
 	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
 	    "C-k" #'eglot-format
 	    "M-o" #'delete-other-windows
+	    "M-j" (lambda () (interactive) (evil-next-visual-line 5))  ; Move down 5 lines  "C-u" #'evil-scroll-up
+	    "M-k" (lambda () (interactive) (evil-previous-visual-line 5))  ; Move up 5 lines
 	    "M-O" #'split-window-horizontally))
 	    ;; :prefix "SPC"
 	    ;; "s i" #'consult-eglot-symbols))
