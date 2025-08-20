@@ -910,23 +910,22 @@ My general note taking system. Regular org roam is just as nice but I like to pr
   :straight t
   :after org
   :general
-  (:keymaps 'org-mode-map
-	    :states 'normal
-	    :prefix "SPC"
-	    "n r"   (cons "org-roam" (make-sparse-keymap))
-	    "n r f" #'org-roam-node-find
-	    "n r i" #'org-roam-node-insert
-	    "n r n" #'org-roam-capture
-	    "n r r" #'org-roam-buffer-toggle
-	    "n r R" #'org-roam-buffer-display-dedicated
-	    "n r s" #'org-roam-db-sync)
+  (:states 'normal
+	   :prefix "SPC"
+	   "n r"   (cons "org-roam" (make-sparse-keymap))
+	   "n r f" #'org-roam-node-find
+	   "n r i" #'org-roam-node-insert
+	   "n r n" #'org-roam-capture
+	   "n r r" #'org-roam-buffer-toggle
+	   "n r R" #'org-roam-buffer-display-dedicated
+	   "n r s" #'org-roam-db-sync)
   :custom
   (org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
   )
-#+end_src
+  #+end_src
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package nerd-icons
@@ -950,7 +949,7 @@ My general note taking system. Regular org roam is just as nice but I like to pr
         org-cite-follow-processor 'citar
         org-cite-activate-processor 'citar)
   :config
-  )
+  ;)
   (setq citar-bibliography '(concat org-directory "/ref.bib"))
   (setq citar-library-paths '(concat org-directory "/references"))
   (setq citar-notes-paths '(concat org-directory "/roam"))
@@ -1128,6 +1127,19 @@ Thank you Mr. Azozin
 	    "m a b" #'org-anki-browse-entry
 	    "m a c" #'org-anki-cloze-dwim)
   )
+#+end_src
+
+*** COMMENT Org-ql
+
+You have create source blocks that will query the org roam database using =org-ql=, this would be useful if I used org-roam more.
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-ql
+  :straight t)
+(use-package org-roam-ql
+  :after org-ql
+  :after org-roam
+  :straight t)
 #+end_src
 
 *** COMMENT Org Capture Server

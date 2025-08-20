@@ -207,16 +207,15 @@
   :straight t
   :after org
   :general
-  (:keymaps 'org-mode-map
-	    :states 'normal
-	    :prefix "SPC"
-	    "n r"   (cons "org-roam" (make-sparse-keymap))
-	    "n r f" #'org-roam-node-find
-	    "n r i" #'org-roam-node-insert
-	    "n r n" #'org-roam-capture
-	    "n r r" #'org-roam-buffer-toggle
-	    "n r R" #'org-roam-buffer-display-dedicated
-	    "n r s" #'org-roam-db-sync)
+  (:states 'normal
+	   :prefix "SPC"
+	   "n r"   (cons "org-roam" (make-sparse-keymap))
+	   "n r f" #'org-roam-node-find
+	   "n r i" #'org-roam-node-insert
+	   "n r n" #'org-roam-capture
+	   "n r r" #'org-roam-buffer-toggle
+	   "n r R" #'org-roam-buffer-display-dedicated
+	   "n r s" #'org-roam-db-sync)
   :custom
   (org-roam-directory (concat org-directory "/roam"))
   :config
@@ -245,7 +244,7 @@
         org-cite-follow-processor 'citar
         org-cite-activate-processor 'citar)
   :config
-  )
+  ;)
   (setq citar-bibliography '(concat org-directory "/ref.bib"))
   (setq citar-library-paths '(concat org-directory "/references"))
   (setq citar-notes-paths '(concat org-directory "/roam"))
