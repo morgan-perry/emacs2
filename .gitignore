@@ -16,3 +16,5 @@
 /%backup%~
 .org-id-locations
 /bookmarks-linux.el
+/bookmarks-windows.el
+/server
