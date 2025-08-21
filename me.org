@@ -142,6 +142,13 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
   (doom-modeline-mode))
 #+end_src
 
+** Git auto commit mode
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package git-auto-commit-mode
+  :straight t)
+#+end_src
+
 ** Flycheck and hl-todo
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -298,13 +305,6 @@ The best git client :)
   (:states 'normal
 	   :prefix "SPC"
 	   "g g" #'magit))
-#+end_src
-
-** Git auto commit mode
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package git-auto-commit-mode
-  :straight t)
 #+end_src
 
 ** KKP

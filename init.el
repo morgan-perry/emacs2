@@ -51,6 +51,9 @@
   :config
   (doom-modeline-mode))
 
+(use-package git-auto-commit-mode
+  :straight t)
+
 (use-package hl-todo
   :straight t
   :hook (prog-mode . hl-todo-mode)
@@ -165,9 +168,6 @@
   (:states 'normal
 	   :prefix "SPC"
 	   "g g" #'magit))
-
-(use-package git-auto-commit-mode
-  :straight t)
 
 (use-package kkp
   :straight t
