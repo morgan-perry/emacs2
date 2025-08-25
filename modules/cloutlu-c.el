@@ -13,6 +13,7 @@
 	    "C-b" #'compile  ; Adapted from odin-run-project; use compile for C projects
 	    "C-k" #'eglot-format
 	    "M-o" #'delete-other-windows
+	    "M-p" #'other-window
 	    "M-j" (lambda () (interactive) (evil-next-visual-line 5))  ; Move down 5 lines  "C-u" #'evil-scroll-up
 	    "M-k" (lambda () (interactive) (evil-previous-visual-line 5))  ; Move up 5 lines
 	    "M-O" #'split-window-horizontally))
