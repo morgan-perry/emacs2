@@ -245,9 +245,9 @@
         org-cite-activate-processor 'citar)
   :config
   ;)
-  (setq citar-bibliography '(concat org-directory "/ref.bib"))
-  (setq citar-library-paths '(concat org-directory "/references"))
-  (setq citar-notes-paths '(concat org-directory "/roam"))
+  (setq citar-bibliography `(,(concat org-directory "/ref.bib"))
+  (setq citar-library-paths `(,(concat org-directory "/references")))
+  (setq citar-notes-paths `(,(concat org-directory "/roam")))
   (defvar citar-indicator-files-icons
     (citar-indicator-create
      :symbol (nerd-icons-faicon
