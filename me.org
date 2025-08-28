@@ -356,7 +356,8 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
     ("notes" "C:/Users/moogly/org/notes.org")
     ("uni" "C:/Users/moogly/org/uni.org")
     ("conf" "~/.config/emacs/me.org")
-    ("Downloads" "C:/Users/moogly/Downloads/")))
+    ("Downloads" "C:/Users/moogly/Downloads/")
+    ("dev" "D:/dev")))
 #+end_src
 
 * Modules
