@@ -102,6 +102,8 @@
 	    "o a r" #'org-attach-reveal
 	    "o a R" #'org-attach-reveal-in-emacs
 	    "o a u" #'org-attach-url
+	    "o a m" #'org-attach-attach-mv
+	    "o a c" #'org-attach-attach-cp
 
 	    "o a r" #'org-refile
 	    "o a R" #'org-refile-copy
