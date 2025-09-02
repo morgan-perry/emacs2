@@ -51,6 +51,29 @@
   :config
   (doom-modeline-mode))
 
+;; (defun my-org-indent-maybe-h ()
+;;   "Indent or cycle the Org list item at point.
+;; Cycle visibility if it has sub-items.
+;; If no sub-items, attempt to demote (indent); if that fails (e.g., first item or no previous sibling),
+;; promote (outdent) instead to 'cycle' the indent levels.
+;; Works anywhere on the current bullet line.
+;; Suppresses error messages for boundary conditions."
+;;   (interactive)
+;;   (when (org-at-item-p)
+;;     (save-excursion
+;;       (org-beginning-of-item)
+;;       (let ((struct (org-list-struct)))
+;;         (if (org-list-has-child-p (point) struct)
+;;             (let ((org-tab-first-hook (remq 'my-org-indent-maybe-h org-tab-first-hook)))
+;;               (org-cycle))
+;;           (condition-case nil
+;;               (org-metaright)
+;;             (user-error (org-metaleft))))))
+;;     t))
+
+;; (add-hook 'org-tab-first-hook #'my-org-indent-maybe-h
+;; )
+
 (use-package git-auto-commit-mode
   :straight t)
 
@@ -209,4 +232,5 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
     ("notes" "C:/Users/moogly/org/notes.org")
     ("uni" "C:/Users/moogly/org/uni.org")
     ("conf" "~/.config/emacs/me.org")
-    ("Downloads" "C:/Users/moogly/Downloads/")))
+    ("Downloads" "C:/Users/moogly/Downloads/")
+    ("dev" "D:/dev")))
