@@ -31,8 +31,9 @@
   (on-windows (setq org-directory "C:/Users/moogly/org"))
   (setq org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
-	org-src-preserve-indentation t
-	org-capture-bookmark nil)
+        org-src-preserve-indentation t
+	org-capture-bookmark nil
+        org-pretty-entities t)
   (setq org-todo-keywords
         '((sequence
            "TODO(t)"  ; A task that needs doing & is ready to do
@@ -139,12 +140,12 @@
   
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-  ;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+					;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
 
   ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
   (setq org-latex-preview-auto-ignored-commands
         '(next-line previous-line mwheel-scroll
-          scroll-up-command scroll-down-command))
+		    scroll-up-command scroll-down-command))
 
   ;; ;; Enable consistent equation numbering
   (setq org-latex-preview-numbered t)
