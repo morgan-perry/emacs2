@@ -128,6 +128,7 @@
 (require 'cloutlu-essentials)
 (require 'cloutlu-dired)
 (require 'cloutlu-tempel)
+(require 'cloutlu-prog)
 (require 'cloutlu-odin)
 (require 'cloutlu-c)
 (require 'cloutlu-eat)
