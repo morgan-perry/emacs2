@@ -14,13 +14,7 @@
 	    "M-p" #'other-window
 	    "M-j" (lambda () (interactive) (evil-next-visual-line 5))  ; Move down 5 lines  "C-u" #'evil-scroll-up
 	    "M-k" (lambda () (interactive) (evil-previous-visual-line 5))  ; Move up 5 lines
-	    "M-O" #'split-window-horizontally)
-  (:keymaps 'prog-mode-map
-   :states 'normal 
-	   :prefix "SPC"
-	   "p c" #'project-compile
-	   "p d" #'project-dired
-	   "p f" #'project-find-file))
+	    "M-O" #'split-window-horizontally))
 
 (use-package eldoc-box
   :straight t

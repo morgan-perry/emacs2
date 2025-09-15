@@ -30,6 +30,10 @@
   "t z"   'cloutlu/toggle-zen-mode
   "`" 'evil-buffer
   "X" 'org-capture
+  ;; Project
+  "p c" #'project-compile
+  "p d" #'project-dired
+  "p f" #'project-find-file
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file

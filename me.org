@@ -444,6 +444,10 @@ the highest priority.
   "t z"   'cloutlu/toggle-zen-mode
   "`" 'evil-buffer
   "X" 'org-capture
+  ;; Project
+  "p c" #'project-compile
+  "p d" #'project-dired
+  "p f" #'project-find-file
   ;; Files
   "f"     (cons "files" (make-sparse-keymap))
   "f f"   'find-file
@@ -1453,13 +1457,7 @@ for each.
 	    "M-p" #'other-window
 	    "M-j" (lambda () (interactive) (evil-next-visual-line 5))  ; Move down 5 lines  "C-u" #'evil-scroll-up
 	    "M-k" (lambda () (interactive) (evil-previous-visual-line 5))  ; Move up 5 lines
-	    "M-O" #'split-window-horizontally)
-  (:keymaps 'prog-mode-map
-   :states 'normal 
-	   :prefix "SPC"
-	   "p c" #'project-compile
-	   "p d" #'project-dired
-	   "p f" #'project-find-file))
+	    "M-O" #'split-window-horizontally))
 
 (use-package eldoc-box
   :straight t
@@ -1486,7 +1484,7 @@ for each.
   (c-mode . hs-minor-mode)
   (c-mode . eldoc-box-hover-mode)
   :hook (odin-mode . (lambda () (when (featurep 'jinx) (require 'cloutlu-tempel))))
-  (c-mode . eglot-ensure)
+  ;; (c-mode . eglot-ensure)
   (c-mode . flycheck-mode)
   :general
   (:keymaps 'c-mode-map
