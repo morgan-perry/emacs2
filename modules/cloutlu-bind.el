@@ -28,6 +28,7 @@
   "SPC"   '("M-x" . execute-extended-command)
   ;; Misc
   "t z"   'cloutlu/toggle-zen-mode
+  "t 2"   'cloutlu/toggle-zen-2-mode
   "`" 'evil-buffer
   "X" 'org-capture
   ;; Project

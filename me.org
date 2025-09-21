@@ -165,6 +165,17 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
 ;; )
 #+end_src
 
+
+** Auto-Wrapping for Prose
+
+For reflowed text (like in prose modes)
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package visual-fill-column
+  :straight t
+  :hook (writeroom-mode . visual-fill-column-mode))
+#+end_src
+
 ** Git auto commit mode
 
 #+begin_src emacs-lisp :tangle "init.el"

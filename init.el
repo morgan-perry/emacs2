@@ -74,6 +74,10 @@
 ;; (add-hook 'org-tab-first-hook #'my-org-indent-maybe-h
 ;; )
 
+(use-package visual-fill-column
+  :straight t
+  :hook (writeroom-mode . visual-fill-column-mode))
+
 (use-package git-auto-commit-mode
   :straight t)
 
