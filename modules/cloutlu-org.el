@@ -384,4 +384,22 @@
 	    "m l c" #'org-cliplink
 	    "m l C" #'org-cliplink-capture))
 
+(org-link-set-parameters
+ "youtube"
+ :follow (lambda (path)
+           (browse-url (concat "https://www.youtube.com/watch?v=" path)))
+ :help-echo (lambda (window object position)
+              (with-current-buffer (window-buffer window)
+                (ignore-errors
+                  (save-excursion
+                    (goto-char position)
+                    (concat "Open YouTube video: "
+                            (org-link-unescape (cadr (org-element-context))))))))
+ :store #'org-yt-store-link  ; Optional: if using org-yt for storing links
+ :export (lambda (path desc backend)
+           (if (eq backend 'html)
+               (format "<a href=\"https://www.youtube.com/watch?v=%s\">%s</a>"
+                       path (or desc "YouTube Video"))
+             (format "[[youtube:%s][%s]]" path (or desc "YouTube Video")))))
+
 (provide 'cloutlu-org)
