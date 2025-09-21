@@ -139,6 +139,7 @@
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
 (if (window-system) (require 'cloutlu-zen) (xterm-mouse-mode t))
+(if (window-system) (require 'cloutlu-zen-2) (xterm-mouse-mode t))
 
 ;; Make native compilation silent and prune its cache.
 (when (native-comp-available-p)
