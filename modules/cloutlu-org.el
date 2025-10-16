@@ -156,23 +156,21 @@
 
 (use-package org-roam
   :straight t
+  :defer t
   :after org
-  :commands (org-roam-node-find org-roam-node-insert)
-  :general
-  (:states 'normal
-	   :prefix "SPC"
-	   "n r"   (cons "org-roam" (make-sparse-keymap))
-	   "n r f" #'org-roam-node-find
-	   "n r i" #'org-roam-node-insert
-	   "n r n" #'org-roam-capture
-	   "n r r" #'org-roam-buffer-toggle
-	   "n r R" #'org-roam-buffer-display-dedicated
-	   "n r s" #'org-roam-db-sync)
-  :custom
-  (org-roam-directory (concat org-directory "/roam"))
+  :commands (org-roam-node-find org-roam-node-insert org-roam-capture)
+  :init
+  (setq org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  )
+  :general
+  (:states 'normal :prefix "SPC"
+           "r f" #'org-roam-node-find
+           "r i" #'org-roam-node-insert
+           "r c" #'org-roam-capture)
+  (:keymaps 'org-mode-map
+            :states 'normal
+            "TAB" #'org-roam-complete-link-at-point))
 
 (use-package nerd-icons
   :straight t
