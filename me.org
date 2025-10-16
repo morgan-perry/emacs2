@@ -318,10 +318,18 @@ This loads the individual modules from the =modules= folder.
       tramp-backup-directory-alist backup-directory-alist)
 #+end_src
 
-** Send custom-file to oblivion
+** Persist custom file into not oblivion
+
 #+begin_src emacs-lisp :tangle "init.el"
-;; Disable the damn thing by making it disposable.
-(setq custom-file (make-temp-file "emacs-custom-"))
+;; Persist custom settings in a stable file
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+;; Load custom file if it exists, otherwise create it
+(when (file-exists-p custom-file)
+  (load custom-file 'noerror))
+;; Mark git-auto-commit-mode eval as safe
+(add-to-list 'safe-local-variable-values
+             '(eval . (when (fboundp 'git-auto-commit-mode)
+                        (git-auto-commit-mode 1))))
 #+end_src
 
 *** Start with scratch buffer

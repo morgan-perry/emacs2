@@ -190,8 +190,15 @@
       backup-directory-alist (list (cons "." (concat cloutlu-cache-dir "backup/")))
       tramp-backup-directory-alist backup-directory-alist)
 
-;; Disable the damn thing by making it disposable.
-(setq custom-file (make-temp-file "emacs-custom-"))
+;; Persist custom settings in a stable file
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+;; Load custom file if it exists, otherwise create it
+(when (file-exists-p custom-file)
+  (load custom-file 'noerror))
+;; Mark git-auto-commit-mode eval as safe
+(add-to-list 'safe-local-variable-values
+             '(eval . (when (fboundp 'git-auto-commit-mode)
+                        (git-auto-commit-mode 1))))
 
 (setq initial-buffer-choice nil)
 (setq initial-major-mode 'lisp-interaction-mode)
