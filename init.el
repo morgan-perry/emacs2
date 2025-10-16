@@ -18,18 +18,28 @@
 (setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
 
+;; Load straight org early to shadow built-in
+(straight-use-package 'org)
+
 (setq recentf-max-menu-items 50        ; keep 50 entries in the menu
       recentf-max-saved-items 100      ; save up to 100 entries
       recentf-auto-cleanup 'idle       ; clean up non-existent files when idle
       recentf-exclude '("\\.gz\\'"     ; don’t record .gz files
-                         "/tmp/"        ; or files in /tmp/
-                         "/ssh:"))      ; or remote ssh:
+                        "/tmp/"        ; or files in /tmp/
+                        "/ssh:"))      ; or remote ssh:
 (add-hook 'after-init-hook #'recentf-mode)
 
 (defvar evil-want-keybinding nil
   "Set to nil because evil-collection is used for keybindings.")
 
-(global-visual-line-mode t)
+;; XXX temp general
+(use-package general
+  :straight t
+  :demand t)
+
+;; defer it for later
+(add-hook 'after-init-hook #'global-visual-line-mode)
+
 (use-package multiple-cursors
   :straight t)
 
@@ -139,7 +149,8 @@
 (require 'cloutlu-corfu)
 (on-linux (require 'cloutlu-jinx))
 (on-linux (require 'cloutlu-pdf))
-(require 'cloutlu-org)
+(with-eval-after-load 'org
+  (require 'cloutlu-org))
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
 (if (window-system) (require 'cloutlu-zen) (xterm-mouse-mode t))

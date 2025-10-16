@@ -101,7 +101,6 @@
 (use-package evil-collection
   :straight t
   :after evil
-  :config
-  (evil-collection-init))
+  :hook (evil-mode . evil-collection-init))
 
 (provide 'cloutlu-bind)

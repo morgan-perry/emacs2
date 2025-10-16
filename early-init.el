@@ -51,9 +51,9 @@
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 100 100 8)
+            (setq gc-cons-threshold (* 100 100 100)
                   gc-cons-percentage 0.1
                   file-name-handler-alist prot-emacs--file-name-handler-alist
-                  vc-handled-backends prot-emacs--vc-handled-backends)))
-
-
+                  vc-handled-backends prot-emacs--vc-handled-backends)
+	    (straight-use-package 'gcmh)
+            (gcmh-mode 1)))

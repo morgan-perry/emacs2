@@ -7,6 +7,6 @@
   (:state 'normal
 	  "C-;" #'jinx-correct)
   :config
-  (setq jinx-languages "en-custom")) ;; From a custom dictionary
+  (setq jinx-languages "en_AU-large")) ;; From a custom dictionary
 
 (provide 'cloutlu-jinx)

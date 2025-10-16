@@ -1,17 +1,23 @@
 ;;; Essential configuration
 (use-package doric-themes
   :straight t
+  :defer t
   :config
   (setq doric-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
 (use-package ef-themes
   :straight t
+  :defer t
   :config
   (setq ef-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
-(load-theme 'ef-owl t)
+;; (load-theme 'ef-owl t)
+(add-hook 'after-init-hook
+          (lambda ()
+            (load-theme 'ef-owl t)
+            (fontaine-mode 1)))
 
 
 (use-package fontaine

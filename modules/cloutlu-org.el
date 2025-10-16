@@ -1,34 +1,13 @@
 (use-package org
-  ;; :ensure nil
-  :defer
-  :straight `(org
-              :fork (:host nil
-			   :repo "https://git.tecosaur.net/tec/org-mode.git"
-			   :branch "dev"
-			   :remote "tecosaur")
-              :files (:defaults "etc")
-              :build t
-              :pre-build
-              (with-temp-file "org-version.el"
-		(require 'lisp-mnt)
-		(let ((version
-                       (with-temp-buffer
-                         (insert-file-contents "lisp/org.el")
-                         (lm-header "version")))
-                      (git-version
-                       (string-trim
-			(with-temp-buffer
-                          (call-process "git" nil t nil "rev-parse" "--short" "HEAD")
-                          (buffer-string)))))
-                  (insert
-                   (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
-                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
-                   "(provide 'org-version)\n")))
-              :pin nil)
+  :straight t
+  :defer t
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
   (on-linux (setq org-directory (expand-file-name "~/org")))
   (on-windows (setq org-directory "C:/Users/moogly/org"))
+  (setq org-fontify-whole-heading-line nil) ;; apparently speeds loading
+  :config
+
   (setq org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
         org-src-preserve-indentation t
@@ -125,38 +104,8 @@
 
 (use-package evil-org
   :straight t
-  :after (org evil consult org-capture)
+  :after (org evil)
   :hook (org-mode . evil-org-mode))
-
-(use-package org-latex-preview
-  :config
-  ;; Increase preview width
-  (plist-put org-latex-preview-appearance-options
-             :page-width 0.8)
-
-  ;; ;; Use dvisvgm to generate previews
-  ;; ;; You don't need this, it's the default:
-  (setq org-latex-preview-process-default 'dvisvgm)
-  
-  ;; Turn on auto-mode, it's built into Org and much faster/more featured than
-  ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-					;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
-
-  ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
-  (setq org-latex-preview-auto-ignored-commands
-        '(next-line previous-line mwheel-scroll
-		    scroll-up-command scroll-down-command))
-
-  ;; ;; Enable consistent equation numbering
-  (setq org-latex-preview-numbered t)
-
-  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
-  ;; fragment and updates the preview in real-time as you edit it.
-  ;; To preview only environments, set it to '(block edit-special) instead
-  (setq org-latex-preview-live t)
-
-  ;; More immediate live-previews -- the default delay is 1 second
-  (setq org-latex-preview-live-debounce 0.25))
 
 (setq org-capture-templates
       `(("i" "Inbox" entry
@@ -180,8 +129,7 @@
 (use-package org-modern
   :straight t
   :after org
-  :config
-  (global-org-modern-mode))
+  :hook (org-mode . org-modern-mode))
 
 (use-package org-expose-emphasis-markers
   :straight t
@@ -209,6 +157,7 @@
 (use-package org-roam
   :straight t
   :after org
+  :commands (org-roam-node-find org-roam-node-insert)
   :general
   (:states 'normal
 	   :prefix "SPC"
@@ -223,7 +172,6 @@
   (org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
   )
 
 (use-package nerd-icons
@@ -237,6 +185,7 @@
 
 (use-package citar
   :straight t
+  :defer t
   :general
   (:states 'normal
 	   :prefix "SPC"
@@ -395,7 +344,7 @@
                     (goto-char position)
                     (concat "Open YouTube video: "
                             (org-link-unescape (cadr (org-element-context))))))))
- :store #'org-yt-store-link  ; Optional: if using org-yt for storing links
+ ;; :store #'org-yt-store-link  ; Optional: if using org-yt for storing links
  :export (lambda (path desc backend)
            (if (eq backend 'html)
                (format "<a href=\"https://www.youtube.com/watch?v=%s\">%s</a>"

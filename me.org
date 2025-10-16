@@ -1,7 +1,6 @@
 #+startup: content indent
 * Early Init
 ** Basic frame settings.
-
 #+begin_src emacs-lisp :tangle "early-init.el"
 (setq frame-resize-pixelwise t
       frame-title-format '("%b")
@@ -63,14 +62,12 @@
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 100 100 8)
+            (setq gc-cons-threshold (* 100 100 100)
                   gc-cons-percentage 0.1
                   file-name-handler-alist prot-emacs--file-name-handler-alist
-                  vc-handled-backends prot-emacs--vc-handled-backends)))
-#+end_src
-
-#+begin_src emacs-lisp :tangle "early-init.el"
-
+                  vc-handled-backends prot-emacs--vc-handled-backends)
+	    (straight-use-package 'gcmh)
+            (gcmh-mode 1)))
 #+end_src
 
 * Init
@@ -97,12 +94,15 @@ This setups up straight
 (setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
 
+;; Load straight org early to shadow built-in
+(straight-use-package 'org)
+
 (setq recentf-max-menu-items 50        ; keep 50 entries in the menu
       recentf-max-saved-items 100      ; save up to 100 entries
       recentf-auto-cleanup 'idle       ; clean up non-existent files when idle
       recentf-exclude '("\\.gz\\'"     ; don’t record .gz files
-                         "/tmp/"        ; or files in /tmp/
-                         "/ssh:"))      ; or remote ssh:
+                        "/tmp/"        ; or files in /tmp/
+                        "/ssh:"))      ; or remote ssh:
 (add-hook 'after-init-hook #'recentf-mode)
 #+end_src
 
@@ -119,7 +119,14 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
 
 #+begin_src emacs-lisp :tangle "init.el"
 
-(global-visual-line-mode t)
+;; XXX temp general
+(use-package general
+  :straight t
+  :demand t)
+
+;; defer it for later
+(add-hook 'after-init-hook #'global-visual-line-mode)
+
 (use-package multiple-cursors
   :straight t)
 
@@ -164,7 +171,6 @@ I'm not sure why it won't work with the =:init= macro in the evil =use-package=.
 ;; (add-hook 'org-tab-first-hook #'my-org-indent-maybe-h
 ;; )
 #+end_src
-
 
 ** Auto-Wrapping for Prose
 
@@ -262,7 +268,8 @@ This loads the individual modules from the =modules= folder.
 (require 'cloutlu-corfu)
 (on-linux (require 'cloutlu-jinx))
 (on-linux (require 'cloutlu-pdf))
-(require 'cloutlu-org)
+(with-eval-after-load 'org
+  (require 'cloutlu-org))
 ;; (when (window-system)
 ;;   (require 'cloutlu-zen))
 (if (window-system) (require 'cloutlu-zen) (xterm-mouse-mode t))
@@ -399,14 +406,16 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
 * Modules
 ** Bindings
 This module sets up the global keybinding system using `general.el` and 'evil'
+
 It establishes `SPC` as the leader key and ensures its bindings have
 the highest priority.
-*** General.el
+*** Evil
+**** General.el
 :PROPERTIES:
 :ID:       0eb8cf18-5f97-4ee5-a403-dd5e4b0a1e53
 :END:
 
-**** Use-package
+***** Use-package
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 (use-package general
@@ -415,9 +424,9 @@ the highest priority.
   :demand t)
 #+end_src
 
-**** Bindings
+***** Bindings
 
-***** Non-Leader bindings
+****** Non-Leader bindings
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 ;; Non-leader bindings
@@ -431,7 +440,7 @@ the highest priority.
   "[ d" #'flycheck-previous-error)
 #+end_src
 
-***** Leader Bindings
+****** Leader Bindings
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 
@@ -446,7 +455,7 @@ the highest priority.
   :keymaps 'cloutlu-leader-map)
 #+end_src
 
-***** General
+****** General
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 ;; Define the general keybindings
@@ -512,7 +521,7 @@ the highest priority.
   )
 #+end_src
 
-*** Evil and evil-collection 
+**** Evil and evil-collection 
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
 (use-package evil
@@ -531,8 +540,113 @@ the highest priority.
 (use-package evil-collection
   :straight t
   :after evil
+  :hook (evil-mode . evil-collection-init))
+#+end_src
+
+*** COMMENT Meow
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-bind.el" :mkdirp yes
+;;;; Meow Modal Editing Setup
+(use-package meow
+  :straight t
+  :demand t  ; Load immediately to avoid defer issues
   :config
-  (evil-collection-init))
+  (defun meow-setup ()
+    "Default Meow QWERTY setup."
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+    ;; Motion mode keys (single keys only; no multi-key issues)
+    (meow-motion-define-key
+     '("j" . meow-next)
+     '("k" . meow-prev)
+     '("<escape>" . ignore))
+    ;; Leader mode (SPC prefix; single keys for digits/help)
+    (meow-leader-define-key
+     ;; Digit arguments
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     ;; Help
+     '("/" . meow-keypad-describe-key)
+     '("?" . meow-cheatsheet))
+    ;; Normal mode keys (all single keys; avoids non-prefix errors like ] d)
+    (meow-normal-define-key
+     '("0" . meow-expand-0)
+     '("9" . meow-expand-9)
+     '("8" . meow-expand-8)
+     '("7" . meow-expand-7)
+     '("6" . meow-expand-6)
+     '("5" . meow-expand-5)
+     '("4" . meow-expand-4)
+     '("3" . meow-expand-3)
+     '("2" . meow-expand-2)
+     '("1" . meow-expand-1)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("[" . meow-beginning-of-thing)
+     '("]" . meow-end-of-thing)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("d" . meow-delete)
+     '("D" . meow-backward-delete)
+     '("e" . meow-next-word)
+     '("E" . meow-next-symbol)
+     '("f" . meow-find)
+     '("g" . meow-cancel-selection)
+     '("G" . meow-grab)
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     '("i" . meow-insert)
+     '("I" . meow-open-above)
+     '("j" . meow-next)
+     '("J" . meow-next-expand)
+     '("k" . meow-prev)
+     '("K" . meow-prev-expand)
+     '("l" . meow-right)
+     '("L" . meow-right-expand)
+     '("m" . meow-join)
+     '("n" . meow-search)
+     '("o" . meow-block)
+     '("O" . meow-to-block)
+     '("p" . meow-yank)
+     '("q" . meow-quit)
+     '("Q" . meow-goto-line)
+     '("r" . meow-replace)
+     '("R" . meow-swap-grab)
+     '("s" . meow-kill)
+     '("t" . meow-till)
+     '("u" . meow-undo)
+     '("U" . meow-undo-in-selection)
+     '("v" . meow-visit)
+     '("w" . meow-mark-word)
+     '("W" . meow-mark-symbol)
+     '("x" . meow-line)
+     '("X" . meow-goto-line)
+     '("y" . meow-save)
+     '("Y" . meow-sync-grab)
+     '("z" . meow-pop-selection)
+     '("'" . repeat)
+     '("<escape>" . ignore))
+    ;; Activate
+    (meow-global-mode 1))
+
+  ;; Call the setup
+  (meow-setup)
+  ;; Optional settings
+  (setq meow-expand-exclude-mode-list '())
+  (setq meow-use-clipboard t))
 #+end_src
 
 *** Provide the module
@@ -550,17 +664,23 @@ Most of this is using prot's  packages.
 ;;; Essential configuration
 (use-package doric-themes
   :straight t
+  :defer t
   :config
   (setq doric-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
 (use-package ef-themes
   :straight t
+  :defer t
   :config
   (setq ef-themes-mixed-fonts t)
   (add-hook 'text-mode-hook #'variable-pitch-mode))
 
-(load-theme 'ef-owl t)
+;; (load-theme 'ef-owl t)
+(add-hook 'after-init-hook
+          (lambda ()
+            (load-theme 'ef-owl t)
+            (fontaine-mode 1)))
 
 
 (use-package fontaine
@@ -687,36 +807,15 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org
-  ;; :ensure nil
-  :defer
-  :straight `(org
-              :fork (:host nil
-			   :repo "https://git.tecosaur.net/tec/org-mode.git"
-			   :branch "dev"
-			   :remote "tecosaur")
-              :files (:defaults "etc")
-              :build t
-              :pre-build
-              (with-temp-file "org-version.el"
-		(require 'lisp-mnt)
-		(let ((version
-                       (with-temp-buffer
-                         (insert-file-contents "lisp/org.el")
-                         (lm-header "version")))
-                      (git-version
-                       (string-trim
-			(with-temp-buffer
-                          (call-process "git" nil t nil "rev-parse" "--short" "HEAD")
-                          (buffer-string)))))
-                  (insert
-                   (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
-                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
-                   "(provide 'org-version)\n")))
-              :pin nil)
+  :straight t
+  :defer t
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'
   (on-linux (setq org-directory (expand-file-name "~/org")))
   (on-windows (setq org-directory "C:/Users/moogly/org"))
+  (setq org-fontify-whole-heading-line nil) ;; apparently speeds loading
+  :config
+
   (setq org-archive-location (concat org-directory "/archive.org::")
 	org-imenu-depth 7
         org-src-preserve-indentation t
@@ -813,38 +912,8 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 
 (use-package evil-org
   :straight t
-  :after (org evil consult org-capture)
+  :after (org evil)
   :hook (org-mode . evil-org-mode))
-
-(use-package org-latex-preview
-  :config
-  ;; Increase preview width
-  (plist-put org-latex-preview-appearance-options
-             :page-width 0.8)
-
-  ;; ;; Use dvisvgm to generate previews
-  ;; ;; You don't need this, it's the default:
-  (setq org-latex-preview-process-default 'dvisvgm)
-  
-  ;; Turn on auto-mode, it's built into Org and much faster/more featured than
-  ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-					;(add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
-
-  ;; ;; Block C-n, C-p etc from opening up previews when using auto-mode
-  (setq org-latex-preview-auto-ignored-commands
-        '(next-line previous-line mwheel-scroll
-		    scroll-up-command scroll-down-command))
-
-  ;; ;; Enable consistent equation numbering
-  (setq org-latex-preview-numbered t)
-
-  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
-  ;; fragment and updates the preview in real-time as you edit it.
-  ;; To preview only environments, set it to '(block edit-special) instead
-  (setq org-latex-preview-live t)
-
-  ;; More immediate live-previews -- the default delay is 1 second
-  (setq org-latex-preview-live-debounce 0.25))
 #+end_src
 
 *** Org Capture
@@ -887,8 +956,7 @@ This makes org-mode look prettier.
 (use-package org-modern
   :straight t
   :after org
-  :config
-  (global-org-modern-mode))
+  :hook (org-mode . org-modern-mode))
 #+end_src
 
 *** COMMENT Org appear
@@ -955,6 +1023,7 @@ My general note taking system. Regular org roam is just as nice but I like to pr
 (use-package org-roam
   :straight t
   :after org
+  :commands (org-roam-node-find org-roam-node-insert)
   :general
   (:states 'normal
 	   :prefix "SPC"
@@ -969,7 +1038,6 @@ My general note taking system. Regular org roam is just as nice but I like to pr
   (org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
   )
   #+end_src
 
@@ -985,6 +1053,7 @@ My general note taking system. Regular org roam is just as nice but I like to pr
 
 (use-package citar
   :straight t
+  :defer t
   :general
   (:states 'normal
 	   :prefix "SPC"
@@ -1226,7 +1295,6 @@ emacsclient --create-frame \
                     (delete-frame))))))
 #+end_src
 
-
 *** Youtube Link
 Custom YouTube links like =[[youtube:VIDEO_ID][Description]]=
 Opens =https://www.youtube.com/watch?v=VIDEO_ID= in browser
@@ -1243,7 +1311,7 @@ Opens =https://www.youtube.com/watch?v=VIDEO_ID= in browser
                     (goto-char position)
                     (concat "Open YouTube video: "
                             (org-link-unescape (cadr (org-element-context))))))))
- :store #'org-yt-store-link  ; Optional: if using org-yt for storing links
+ ;; :store #'org-yt-store-link  ; Optional: if using org-yt for storing links
  :export (lambda (path desc backend)
            (if (eq backend 'html)
                (format "<a href=\"https://www.youtube.com/watch?v=%s\">%s</a>"
@@ -1309,9 +1377,8 @@ for each.
 #+begin_src emacs-lisp :tangle "modules/cloutlu-vertico.el" :mkdirp yes
 ;; Example configuration for Consult
 (use-package consult
-  :demand t
-  :after vertico
   :straight t
+  :after vertico
   ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
@@ -1696,7 +1763,7 @@ website.
   (:state 'normal
 	  "C-;" #'jinx-correct)
   :config
-  (setq jinx-languages "en-custom")) ;; From a custom dictionary
+  (setq jinx-languages "en_AU-large")) ;; From a custom dictionary
 #+end_src
 
 *** Provide the modules
