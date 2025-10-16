@@ -1,5 +1,5 @@
 (use-package org
-  :straight t
+  :straight nil
   :defer t
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'

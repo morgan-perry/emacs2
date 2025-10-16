@@ -204,10 +204,10 @@
 
 (use-package magit
   :straight t
+  :defer t
+  :commands (magit magit-status)
   :general
-  (:states 'normal
-	   :prefix "SPC"
-	   "g g" #'magit))
+  (:states 'normal :prefix "SPC" "g g" #'magit-status))
 
 (use-package kkp
   :straight t

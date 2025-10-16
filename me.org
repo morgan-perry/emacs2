@@ -344,10 +344,10 @@ The best git client :)
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package magit
   :straight t
+  :defer t
+  :commands (magit magit-status)
   :general
-  (:states 'normal
-	   :prefix "SPC"
-	   "g g" #'magit))
+  (:states 'normal :prefix "SPC" "g g" #'magit-status))
 #+end_src
 
 ** KKP
@@ -528,7 +528,8 @@ the highest priority.
   :straight t
   :demand t
   :init
-  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-integration t ; This is optional since it's already set to t by default.
+	evil-want-keybinding nil) ; Already set globally, reinforce
   (setq evil-respect-visual-line-mode t)
   (setq evil-move-line-on-visual-line t)
   (setq evil-want-fine-undo t)
@@ -537,10 +538,17 @@ the highest priority.
   :config
   (evil-mode 1))
 
+;; (use-package evil-collection
+;;   :straight t
+;;   :after evil
+;;   :hook (evil-mode . evil-collection-init))
 (use-package evil-collection
   :straight t
+  :demand t  ; Load eagerly for simplicity
   :after evil
-  :hook (evil-mode . evil-collection-init))
+  :config
+  (setq evil-collection-setup-minibuffer nil)  ; Avoid minibuffer conflicts
+  (evil-collection-init))  ; Run immediately for Magit, Dired, etc.
 #+end_src
 
 *** COMMENT Meow
@@ -807,7 +815,7 @@ I mean yeah dude I want to delete just the folder not anything inside it that ma
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org
-  :straight t
+  :straight nil
   :defer t
   :init
   (require 'org-tempo) ; Adds nice abbrevs like '<s' or '<q'

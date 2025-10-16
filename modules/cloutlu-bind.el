@@ -89,7 +89,8 @@
   :straight t
   :demand t
   :init
-  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-integration t ; This is optional since it's already set to t by default.
+	evil-want-keybinding nil) ; Already set globally, reinforce
   (setq evil-respect-visual-line-mode t)
   (setq evil-move-line-on-visual-line t)
   (setq evil-want-fine-undo t)
@@ -98,9 +99,16 @@
   :config
   (evil-mode 1))
 
+;; (use-package evil-collection
+;;   :straight t
+;;   :after evil
+;;   :hook (evil-mode . evil-collection-init))
 (use-package evil-collection
   :straight t
+  :demand t  ; Load eagerly for simplicity
   :after evil
-  :hook (evil-mode . evil-collection-init))
+  :config
+  (setq evil-collection-setup-minibuffer nil)  ; Avoid minibuffer conflicts
+  (evil-collection-init))  ; Run immediately for Magit, Dired, etc.
 
 (provide 'cloutlu-bind)
