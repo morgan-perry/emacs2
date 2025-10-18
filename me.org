@@ -1345,6 +1345,18 @@ Opens =https://www.youtube.com/watch?v=VIDEO_ID= in browser
              (format "[[youtube:%s][%s]]" path (or desc "YouTube Video")))))
 #+end_src
 
+*** Org Transclude
+
+#+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
+(use-package org-transclusion
+  :straight t
+  :after org
+  :init
+  :general
+  (:states 'normal :prefix "SPC"
+           "n t" #'org-transclusion-add))
+#+end_src
+
 *** Provide the module
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes

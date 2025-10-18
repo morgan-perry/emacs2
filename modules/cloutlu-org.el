@@ -349,4 +349,12 @@
                        path (or desc "YouTube Video"))
              (format "[[youtube:%s][%s]]" path (or desc "YouTube Video")))))
 
+(use-package org-transclusion
+  :straight t
+  :after org
+  :init
+  :general
+  (:states 'normal :prefix "SPC"
+           "n t" #'org-transclusion-add))
+
 (provide 'cloutlu-org)
