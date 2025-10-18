@@ -163,11 +163,14 @@
   (setq org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
   :general
   (:states 'normal :prefix "SPC"
            "r f" #'org-roam-node-find
            "r i" #'org-roam-node-insert
-           "r c" #'org-roam-capture)
+           "r c" #'org-roam-capture
+	   "r t" #'org-roam-tag-add
+	   "r t" #'org-roam-tag-add)
   (:keymaps 'org-mode-map
             :states 'normal
             "TAB" #'org-roam-complete-link-at-point))
@@ -332,7 +335,8 @@
 	    "m l C" #'org-cliplink-capture))
 
 (use-package org-ql
-  :straight t)
+  :straight t
+  :after org)
 
 (use-package org-roam-ql
   :after (org-ql org-roam)

@@ -1058,11 +1058,14 @@ My general note taking system. Regular org roam is just as nice but I like to pr
   (setq org-roam-directory (concat org-directory "/roam"))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
   :general
   (:states 'normal :prefix "SPC"
            "r f" #'org-roam-node-find
            "r i" #'org-roam-node-insert
-           "r c" #'org-roam-capture)
+           "r c" #'org-roam-capture
+	   "r t" #'org-roam-tag-add
+	   "r T" #'org-roam-tag-remove)
   (:keymaps 'org-mode-map
             :states 'normal
             "TAB" #'org-roam-complete-link-at-point))
