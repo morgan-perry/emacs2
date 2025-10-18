@@ -221,20 +221,25 @@
   :config
   (global-kkp-mode +1))
 
-;; Custom macro to define system-specific bookmarks
+;; Custom macro to define system-specific bookmarks, now batch updates the file for longer bookmarks, thanks gwok :)
 (defmacro define-system-bookmarks (system &rest bookmarks)
   "Define bookmarks for SYSTEM ('gnu/linux or 'windows-nt) with NAMES and PATHS.
-Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and logs them."
+Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files, logs them,
+and writes all bookmarks to the file in a single operation."
   `(when (eq system-type ,system)
-     ,@(mapcar
-        (lambda (bookmark)
-          (let ((name (car bookmark))
-                (path (cadr bookmark)))
-            `(let ((expanded-path (expand-file-name ,path)))
-               (if (file-exists-p expanded-path)
-                   (bookmark-store ,name `((filename . ,expanded-path)) nil)
-                 (message "Skipping bookmark '%s': File '%s' does not exist" ,name ,path)))))
-        bookmarks)))
+     (let ((bookmark-alist nil)) ;; Temporarily clear bookmark-alist
+       ,@(mapcar
+          (lambda (bookmark)
+            (let ((name (car bookmark))
+                  (path (cadr bookmark)))
+              `(let ((expanded-path (expand-file-name ,path)))
+                 (if (file-exists-p expanded-path)
+                     (push (cons ,name (list (cons 'filename expanded-path))) bookmark-alist)
+                   (message "Skipping bookmark '%s': File '%s' does not exist" ,name ,path)))))
+          bookmarks)
+       (when bookmark-alist ;; Only save if there are valid bookmarks
+         (setq bookmark-alist (nreverse bookmark-alist)) ;; Restore correct order
+         (bookmark-save nil bookmark-default-file)))))
 
 ;; Ensure bookmark package is loaded
 (use-package bookmark
@@ -249,12 +254,19 @@ Each bookmark in BOOKMARKS is a (NAME PATH) pair. Skips non-existent files and l
    (setq bookmark-default-file "~/.config/emacs/bookmarks-windows.el"))
   ;; Define system-specific bookmarks
   (define-system-bookmarks 'gnu/linux
-    ("notes" "~/org/notes.org")
-    ("uni" "~/org/uni.org")
-    ("conf" "~/.config/emacs/me.org"))
+			   ("conf" "~/.config/emacs/me.org")
+			   ("notes" "~/org/notes.org")
+			   ("uni" "~/org/uni.org")
+			   )
   (define-system-bookmarks 'windows-nt
-    ("notes" "C:/Users/moogly/org/notes.org")
-    ("uni" "C:/Users/moogly/org/uni.org")
-    ("conf" "~/.config/emacs/me.org")
-    ("Downloads" "C:/Users/moogly/Downloads/")
-    ("dev" "D:/dev")))
+			   ("conf" "~/.config/emacs/me.org")
+			   ("notes" "C:/Users/moogly/org/notes.org")
+			   ("uni" "C:/Users/moogly/org/uni.org")
+			   ("ref" "C:/Users/moogly/org/references")
+			   ("org" "C:/Users/moogly/org")
+			   ("roam" "C:/Users/moogly/org/roam")
+			   ("Downloads" "C:/Users/moogly/Downloads/")
+			   ("dev" "D:/dev")
+			   ("doc" "C:/Users/moogly/doc")
+			   )
+  )
