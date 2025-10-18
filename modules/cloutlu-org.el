@@ -331,6 +331,13 @@
 	    "m l c" #'org-cliplink
 	    "m l C" #'org-cliplink-capture))
 
+(use-package org-ql
+  :straight t)
+
+(use-package org-roam-ql
+  :after (org-ql org-roam)
+  :straight t)
+
 (org-link-set-parameters
  "youtube"
  :follow (lambda (path)

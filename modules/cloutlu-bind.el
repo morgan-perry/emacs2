@@ -83,6 +83,7 @@
   "s l" 'consult-focus-lines
   "s t" 'consult-todo
   "s f" 'consult-flycheck
+  "s o" 'org-ql-find-in-agenda
   )
 
 (use-package evil

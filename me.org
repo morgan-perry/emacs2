@@ -538,6 +538,7 @@ the highest priority.
   "s l" 'consult-focus-lines
   "s t" 'consult-todo
   "s f" 'consult-flycheck
+  "s o" 'org-ql-find-in-agenda
   )
 #+end_src
 
@@ -1269,16 +1270,17 @@ Thank you Mr. Azozin
   )
 #+end_src
 
-*** COMMENT Org-ql
+*** Org-ql
 
 You have create source blocks that will query the org roam database using =org-ql=, this would be useful if I used org-roam more.
 
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (use-package org-ql
-  :straight t)
+  :straight t
+  :after org)
+
 (use-package org-roam-ql
-  :after org-ql
-  :after org-roam
+  :after (org-ql org-roam)
   :straight t)
 #+end_src
 
@@ -1362,7 +1364,6 @@ Opens =https://www.youtube.com/watch?v=VIDEO_ID= in browser
 #+begin_src emacs-lisp :tangle "modules/cloutlu-org.el" :mkdirp yes
 (provide 'cloutlu-org)
 #+end_src
-
 ** Vertico Setup
 
 These modules are generally for a (personally) more preferable
@@ -2139,6 +2140,7 @@ differentiate between Org mode and other modes.
 This library contains extra helper functions for Org mode, primarily for advanced
 folding controls, inspired by Doom Emacs.
 
+
 #+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-org-extra.el" :mkdirp yes
 ;;; cloutlu-org-extra.el --- Extra helper functions for Org mode -*- lexical-binding: t; -*-
 
@@ -2505,7 +2507,9 @@ Ported from Doom Emacs."
           ((org-at-table-p)
            (save-excursion (org-table-align)))
           ((call-interactively #'org-fill-paragraph)))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle "cloutlu-lisp/cloutlu-org-extra.el" :mkdirp yes
 (provide 'cloutlu-org-extra)
 #+end_src
 
